@@ -1,0 +1,22 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{B530902D-376E-3EE0-F673-1113CDAA6A5F}") = "McGill-Once-McGill-Twice", "Assembly-CSharp-firstpass.csproj", "{BB2D85C1-31F8-8A26-EDB0-8DD252268E21}"
+EndProject
+Project("{B530902D-376E-3EE0-F673-1113CDAA6A5F}") = "McGill-Once-McGill-Twice", "Assembly-CSharp-Editor.csproj", "{1DF8B51A-21A0-4B7C-7EFE-4CB61AEDEB2A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BB2D85C1-31F8-8A26-EDB0-8DD252268E21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB2D85C1-31F8-8A26-EDB0-8DD252268E21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB2D85C1-31F8-8A26-EDB0-8DD252268E21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB2D85C1-31F8-8A26-EDB0-8DD252268E21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DF8B51A-21A0-4B7C-7EFE-4CB61AEDEB2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DF8B51A-21A0-4B7C-7EFE-4CB61AEDEB2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DF8B51A-21A0-4B7C-7EFE-4CB61AEDEB2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DF8B51A-21A0-4B7C-7EFE-4CB61AEDEB2A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
