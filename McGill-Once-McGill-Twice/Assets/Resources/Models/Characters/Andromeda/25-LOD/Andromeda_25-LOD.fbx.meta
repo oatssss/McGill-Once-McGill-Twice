@@ -168,7 +168,7 @@ ModelImporter:
     13700008: Shoes
     13700010: Tops
   materials:
-    importMaterials: 1
+    importMaterials: 0
     materialName: 0
     materialSearch: 2
   animations:
