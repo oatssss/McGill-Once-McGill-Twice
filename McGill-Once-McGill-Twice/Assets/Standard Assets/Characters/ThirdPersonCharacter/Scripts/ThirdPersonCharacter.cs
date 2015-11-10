@@ -220,5 +220,62 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 				m_Animator.applyRootMotion = false;
 			}
 		}
+        
+        public void DisableUserControls()
+        {
+            ThirdPersonUserControl userControls = GetComponent<ThirdPersonUserControl>();
+            if (userControls == null)
+            {
+                Debug.LogErrorFormat("{0} does not have a user control script; cannot disable user controls.", gameObject);
+                return;
+            }
+            
+            //  Disable user controller script and reset the player's movement to zero, standing, not jumping
+            userControls.enabled = false;
+            Move(Vector3.zero, false, false);
+        }
+        
+        public void EnableUserControls()
+        {
+            //  Disable any existing AI controller, but don't log errors
+            DisableAIControls(false);
+            
+            //  Enable the user controls
+            ThirdPersonUserControl userControls = GetComponent<ThirdPersonUserControl>();
+            if (userControls == null)
+            {
+                Debug.LogErrorFormat("{0} does not have a user control script; cannot enable user controls.", gameObject);
+                return;
+            }
+            
+            userControls.enabled = true;
+        }
+        
+        public void DisableAIControls(bool logErrors)
+        {
+            AICharacterControl aiControls = GetComponent<AICharacterControl>();
+            if (aiControls == null)
+            {
+                if (logErrors)
+                    { Debug.LogErrorFormat("{0} does not have an AI control script; cannot disable AI controls.", gameObject); }
+                
+                return;
+            }
+            
+            aiControls.enabled = false;
+            Move(Vector3.zero, false, false);
+        }
+        
+        public void EnableAIControls()
+        {
+            AICharacterControl aiControls = GetComponent<AICharacterControl>();
+            if (aiControls == null)
+            {
+                Debug.LogErrorFormat("{0} does not have an AI control script; cannot enable AI controls.", gameObject);
+                return; 
+            }
+            
+            aiControls.enabled = true;
+        }
 	}
 }

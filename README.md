@@ -1,5 +1,6 @@
 # McGill Once McGill Twice
 
+# Team :
 Othniel Cundangan : 260575092
 
       Good with class/interface design and constructing UML diagram mock ups
@@ -24,3 +25,7 @@ Elizabeth Wu : 260571586
 
       Experience with network/database structures and programming
       Superb graphic design and photography skills
+
+# Details :
+- Project files and source can be found in the folder "McGill-Once-McGill-Twice."
+- Uncompressed/Untampered resources used within the game can be found in the folder "Raw Resources."
