@@ -25,6 +25,11 @@ public class ProtectCameraFromWallClipCustom : MonoBehaviour
     {
         m_OriginalDist = distance;
     }
+    
+    public float GetOriginalDistance()
+    {
+        return m_OriginalDist;
+    }
 
     private void Start()
     {

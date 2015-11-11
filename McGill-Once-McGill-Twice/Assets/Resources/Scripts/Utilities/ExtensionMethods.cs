@@ -37,5 +37,28 @@ namespace ExtensionMethods
         {
             return toClamp.Clamp(forward, degreeFreedom, degreeFreedom, degreeFreedom);
         }
+        
+        public static Vector3 ClampMagnitude(this Vector3 toClamp, float minMagnitude, float maxMagnitude)
+        {
+            float magnitude = toClamp.magnitude;
+            
+            //  Take care with zero so we don't divide by it
+            if (Mathf.Approximately(magnitude, 0f))
+                { return toClamp.normalized * minMagnitude; }
+            
+            float clampedMagnitude = Mathf.Clamp(magnitude, minMagnitude, maxMagnitude);
+            float scale = clampedMagnitude/magnitude;
+            return toClamp * scale;
+        }
+        
+        public static Vector3 ClampMagnitude01(this Vector3 toClamp)
+        {
+            return toClamp.ClampMagnitude(0f, 1f);
+        }
+        
+        public static Vector3 ClampMaxMagnitude(this Vector3 toClamp, float maxMagnitude)
+        {
+            return toClamp.ClampMagnitude(0f, maxMagnitude);
+        }
     }
 }

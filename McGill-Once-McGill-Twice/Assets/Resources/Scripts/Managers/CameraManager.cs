@@ -10,7 +10,7 @@ public class CameraManager : UnitySingleton<CameraManager>
     private Coroutine Fading = null;
     [SerializeField] private CanvasRenderer FadeRenderer;
     [SerializeField] private FreeLookCamCustom CamScript;
-    [SerializeField] private ProtectCameraFromWallClip CamWallProtectScript;
+    [SerializeField] private ProtectCameraFromWallClipCustom CamWallProtectScript;
     /*private FreeLookCamCustom CamScript
     {
         get
@@ -50,104 +50,143 @@ public class CameraManager : UnitySingleton<CameraManager>
         FadeToClear(null);
     }
 
-    public void FadeToBlack(Action callback)
+    public static void FadeToBlack(Action callback)
     {
-        if (this.Fading != null)
-            { StopCoroutine(this.Fading); }
+        if (Instance.Fading != null)
+            { Instance.StopCoroutine(Instance.Fading); }
 
-        Fading = StartCoroutine(this.DoFadeToBlack(callback));
+        Instance.Fading = Instance.StartCoroutine(DoFadeToBlack(callback));
     }
 
-    public void FadeToClear(Action callback)
+    public static void FadeToClear(Action callback)
     {
-        if (this.Fading != null)
-            { StopCoroutine(this.Fading); }
+        if (Instance.Fading != null)
+            { Instance.StopCoroutine(Instance.Fading); }
 
-        Fading = StartCoroutine(this.DoFadeToClear(callback));
+        Instance.Fading = Instance.StartCoroutine(DoFadeToClear(callback));
     }
 
-    private IEnumerator DoFadeToBlack(Action callback)
+    private static IEnumerator DoFadeToBlack(Action callback)
     {
-        yield return StartCoroutine(FadeUtility.UIAlphaFade(FadeRenderer, 0f, 1f, 0.5f, FadeUtility.EaseType.InOut));
+        yield return Instance.StartCoroutine(FadeUtility.UIAlphaFade(Instance.FadeRenderer, 0f, 1f, 0.5f, FadeUtility.EaseType.InOut));
 
         if (callback != null)
             { callback(); }
     }
 
-    private IEnumerator DoFadeToClear(Action callback)
+    private static IEnumerator DoFadeToClear(Action callback)
     {
-        yield return StartCoroutine(FadeUtility.UIAlphaFade(FadeRenderer, 1f, 0f, 0.5f, FadeUtility.EaseType.InOut));
+        yield return Instance.StartCoroutine(FadeUtility.UIAlphaFade(Instance.FadeRenderer, 1f, 0f, 0.5f, FadeUtility.EaseType.InOut));
 
         if (callback != null)
             { callback(); }
     }
     
-    public void SetViewLookAngleMax(Vector3 forward, float maxAngle)
+    public static void SetViewLookAngleMaxImmediate(Vector3 forward, float maxAngle)
     {
-        this.CamScript.SetLookAngleMax(maxAngle);
-        this.CamScript.SetForwardDirection(forward);
+        Instance.CamScript.SetForwardDirectionImmediate(forward);
+        Instance.CamScript.SetLookAngleMaxImmediate(maxAngle);
     }
     
-    public void SetViewLookAngleMax(float maxAngle, float speed)
+    public static void SetViewLookAngleMax(Vector3 forward, float maxAngle)
     {
-        this.CamScript.SetLookAngleMax(maxAngle, speed);
+        Instance.CamScript.SetLookAngleMax(maxAngle);
+        Instance.CamScript.SetForwardDirection(forward);
     }
     
-    public void SetViewLookAngleMax(Vector3 forward, float maxAngle, float speed)
+    public static void SetViewLookAngleMax(float maxAngle, float speed)
+    {
+        Instance.CamScript.SetLookAngleMax(maxAngle, speed);
+    }
+    
+    public static void SetViewLookAngleMax(Vector3 forward, float maxAngle, float speed)
     {
         SetViewLookAngleMax(maxAngle, speed);
-        this.CamScript.SetForwardDirection(forward, speed);
+        Instance.CamScript.SetForwardDirection(forward, speed);
     }
     
-    public void SetViewForward(Vector3 forward, float speed)
+    public static void SetViewForwardImmediate(Vector3 forward)
     {
-        this.CamScript.SetForwardDirection(forward, speed);
+        Instance.CamScript.SetForwardDirectionImmediate(forward);
     }
     
-    public void SetViewForward(Vector3 forward)
+    public static void SetViewForward(Vector3 forward, float speed)
     {
-        this.CamScript.SetForwardDirection(forward);
+        Instance.CamScript.SetForwardDirection(forward, speed);
     }
     
-    public void ForceViewDirectionTowardsTarget(Vector3 targetPos)
+    public static void SetViewForward(Vector3 forward)
     {
-        this.CamScript.ForceViewDirectionTowardsTarget(targetPos);
+        Instance.CamScript.SetForwardDirection(forward);
     }
     
-    public void SetPivotRadius(float radius, float moveSpeed)
+    public static void ForceViewDirectionTowardsTarget(Vector3 targetPos)
     {
-        this.CamScript.SetPivotRadius(radius, moveSpeed);
+        Instance.CamScript.ForceViewDirectionTowardsTarget(targetPos);
     }
     
-    public void SetPivotRadius(float radius)
+    public static void SetPivotRadiusImmediate(float radius)
     {
-        this.CamScript.SetPivotRadius(radius);
+        Instance.CamScript.SetPivotRadiusImmediate(radius);
     }
     
-    public void SetViewToPlayer(float moveSpeed)
+    public static void SetPivotRadius(float radius, float moveSpeed)
     {
-        this.CamScript.SetPlayerAsTarget(moveSpeed);
+        Instance.CamScript.SetPivotRadius(radius, moveSpeed);
+    }
+    
+    public static void SetPivotRadius(float radius)
+    {
+        Instance.CamScript.SetPivotRadius(radius);
+    }
+    
+    public static void SetViewToPlayer(float moveSpeed)
+    {
+        Instance.CamScript.SetPlayerAsTarget(moveSpeed);
         SetViewLookAngleMax(180f, moveSpeed);
     }
     
-    public void SetViewToPlayer()
+    public static void SetViewToPlayer()
     {
-        this.CamScript.SetPlayerAsTarget();
-        this.CamScript.SetLookAngleMax(180f);
+        Instance.CamScript.SetPlayerAsTarget();
+        Instance.CamScript.SetLookAngleMax(180f);
     }
     
-    public void LockViewPosition()
+    public static void LockViewPosition()
     {
-        this.CamScript.LockPosition();
+        Instance.CamScript.LockPosition();
     }
     
-    public void SetViewPosition(Vector3 position, float moveSpeed)
+    public static void SetViewPositionImmediate(Vector3 position)
     {
-        this.CamScript.LockPosition(position, moveSpeed);
+        Instance.CamScript.LockPositionImmediate(position);
     }
     
-    public void SetViewPosition(Vector3 position)
+    public static void SetViewPosition(Vector3 position, float moveSpeed)
     {
-        this.CamScript.LockPosition(position);
+        Instance.CamScript.LockPosition(position, moveSpeed);
+        
+        //  Account for wall collisions if setting the view position to be an immediate snap
+        //  if (moveSpeed >= MoveSpeedImmediate)
+        //  {
+        //      float originalReturnTime = Instance.CamWallProtectScript.returnTime;
+        //      Instance.CamWallProtectScript.returnTime = 0f;
+        //      CallbackOnPositionReached( finalPosition => { Instance.CamWallProtectScript.returnTime = originalReturnTime; } );
+        //  }
+    }
+    
+    public static void SetViewPosition(Vector3 position)
+    {
+        Instance.CamScript.LockPosition(position);
+    }
+    
+    public static void CallbackOnPositionReached(Action<Vector3> callback)
+    {
+        Instance.CamScript.CallbackOnRetarget(callback);
+    }
+    
+    public static void SetMoveSpeed(float moveSpeed)
+    {
+        Instance.CamScript.SetMoveSpeed(moveSpeed);
     }
 }

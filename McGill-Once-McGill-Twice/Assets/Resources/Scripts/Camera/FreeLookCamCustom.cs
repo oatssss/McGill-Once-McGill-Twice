@@ -14,7 +14,8 @@ public class FreeLookCamCustom : PivotBasedCameraRig
     // 		Pivot
     // 			Camera
 
-    [SerializeField] private float m_MoveSpeed = 1f;                      // How fast the rig will move to keep up with the target's position.
+    [SerializeField] private float m_MoveSpeed = 7f;                      // How fast the rig will move to keep up with the target's position.
+    [SerializeField] private float m_OriginalMoveSpeed = 7f;
     [Range(0f, 10f)] [SerializeField] private float m_TurnSpeed = 1.5f;   // How fast the rig will rotate from user input.
     [SerializeField] private float m_TurnSmoothing = 0.1f;                // How much smoothing to apply to the turn input, to reduce mouse-turn jerkiness
     [SerializeField] private float m_TiltMax = 75f;                       // The maximum value of the x axis rotation of the pivot.
@@ -147,8 +148,13 @@ public class FreeLookCamCustom : PivotBasedCameraRig
             yield return null;
         }
         
-        m_LookAngleMax = maxAngle;
+        SetLookAngleMaxImmediate(maxAngle);
         AdjustingLookAngleMax = null;
+    }
+    
+    public void SetLookAngleMaxImmediate(float maxAngle)
+    {
+        m_LookAngleMax = maxAngle;
     }
     
     public void SetLookAngleMax(float maxAngle, float speed)
@@ -177,8 +183,13 @@ public class FreeLookCamCustom : PivotBasedCameraRig
             yield return null;
         }
         
-        m_ForwardDirection = forward;
+        SetForwardDirectionImmediate(forward);
         AdjustingForwardDirection = null;
+    }
+    
+    public void SetForwardDirectionImmediate(Vector3 forward)
+    {
+        m_ForwardDirection = new Vector3(forward.x, 0f, forward.z);
     }
     
     public void SetForwardDirection(Vector3 forward, float speed)
@@ -215,13 +226,23 @@ public class FreeLookCamCustom : PivotBasedCameraRig
             t += Time.deltaTime;
             float lerpedRadius = Mathf.Lerp(original, radius, FadeUtility.Ease(t/t_max, FadeUtility.EaseType.InOut));
             m_Cam.localPosition = new Vector3(0f, 0f, lerpedRadius);
+            
+            //  If there's a wall clip script, set it's original distance, or else it'll revert to that
             if (this.ProtectWallClipScript != null)
                 { this.ProtectWallClipScript.SetOriginalDistance(Mathf.Abs(lerpedRadius)); }
             yield return null;
         }
         
-        m_Cam.localPosition = new Vector3(0f, 0f, radius);
+        SetPivotRadiusImmediate(radius);
+        
         AdjustingPivotRadius = null;
+    }
+    
+    public void SetPivotRadiusImmediate(float radius)
+    {
+        m_Cam.localPosition = new Vector3(0f, 0f, radius);
+        if (this.ProtectWallClipScript != null)
+            { this.ProtectWallClipScript.SetOriginalDistance(Mathf.Abs(radius)); }
     }
     
     public void SetPivotRadius(float radius, float moveSpeed)
@@ -234,6 +255,17 @@ public class FreeLookCamCustom : PivotBasedCameraRig
     public void SetPivotRadius(float radius)
     {
         SetPivotRadius(radius, m_MoveSpeed);
+    }
+    
+    public void LockPositionImmediate(Vector3 position)
+    {
+        GameObject lockTargetObject = new GameObject("CameraLockTarget");
+        Transform lockTargetTransform = lockTargetObject.transform;
+        lockTargetTransform.position = position;
+        UnlockTarget = m_Target;
+        m_Target = lockTargetTransform;
+        LockTarget = lockTargetTransform;
+        transform.position = position;
     }
     
     public void LockPosition(Vector3 position, float moveSpeed)
@@ -288,7 +320,7 @@ public class FreeLookCamCustom : PivotBasedCameraRig
     
     public void SetPlayerAsTarget(float moveSpeed)
     {
-        SetTarget(PlayerManager.Instance.MainPlayer.transform.Find("CameraTarget"), moveSpeed);
+        SetTarget(PlayerManager.MainPlayer.transform.Find("CameraTarget"), moveSpeed);
         SetPivotRadius(2f);
     }
     
@@ -297,20 +329,53 @@ public class FreeLookCamCustom : PivotBasedCameraRig
         SetPlayerAsTarget(m_MoveSpeed);
     }
     
+    private event Action<Vector3> FinishedRetarget = null;
     private Coroutine CheckingRetargetFinished;
-    private IEnumerator CheckRetargetFinished(Action callback)
+    private IEnumerator CheckRetargetFinished()
     {
-        while (transform.position != m_Target.position)
+        while (transform.position != m_Target.position || !Mathf.Approximately(m_Cam.localPosition.z, -ProtectWallClipScript.GetOriginalDistance()))
             { yield return null; }
-        callback();
+        //  callback();
+
+        //  Call the FinishedRetarget event to trigger any registered callbacks
+        if (FinishedRetarget != null)
+        {
+            FinishedRetarget(m_Target.position);
+
+            //  Remove all the callbacks once they've been triggered
+            Delegate[] callbacks = FinishedRetarget.GetInvocationList();
+            foreach (Delegate callback in callbacks)
+                { FinishedRetarget -= (callback as Action<Vector3>); }
+        }
+        
+        CheckingRetargetFinished = null;
     }
+    public void CallbackOnRetarget(Action<Vector3> callback)
+    {
+        //  Register the callback
+        FinishedRetarget += callback;
+        
+        //  Only check for the retarget finish if not already checking
+        if (CheckingRetargetFinished == null)
+            { StartCoroutine(CheckRetargetFinished()); }
+    }
+    
     private void TemporarilyAdjustMoveSpeed(float speed)
     {
-        float untamperedSpeed = m_MoveSpeed;
         m_MoveSpeed = speed;
         
-        //  Only check for the finish if not already checking
+        //  Only revert to the untampered speed if it was untampered to begin with, check for the finish if not already checking
         if (CheckingRetargetFinished == null)
-            { StartCoroutine(CheckRetargetFinished( () => { m_MoveSpeed = untamperedSpeed; CheckingRetargetFinished = null; } )); }
+        {
+            Action<Vector3> revertSpeed = finalPosition => { m_MoveSpeed = m_OriginalMoveSpeed; CheckingRetargetFinished = null; };
+            FinishedRetarget += revertSpeed;
+            StartCoroutine(CheckRetargetFinished());
+        }
+    }
+    
+    public void SetMoveSpeed(float moveSpeed)
+    {
+        m_OriginalMoveSpeed = moveSpeed;
+        m_MoveSpeed = m_OriginalMoveSpeed;
     }
 }

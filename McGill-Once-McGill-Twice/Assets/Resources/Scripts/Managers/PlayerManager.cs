@@ -2,8 +2,8 @@
 
 public class PlayerManager : UnitySingleton<PlayerManager> {
     
-    [SerializeField] private ThirdPersonCharacterCustom _MainPlayer;    
-    public ThirdPersonCharacterCustom MainPlayer
+    [SerializeField] private static ThirdPersonCharacterCustom _MainPlayer;    
+    public static ThirdPersonCharacterCustom MainPlayer
     {
         get
         {
@@ -17,7 +17,7 @@ public class PlayerManager : UnitySingleton<PlayerManager> {
                         { return playerScript; }
                 }
     
-                Debug.LogErrorFormat("{0} could not obtain the player's script.", this);
+                Debug.LogErrorFormat("{0} could not obtain the player's script.", Instance);
                 return null;
             }
             else

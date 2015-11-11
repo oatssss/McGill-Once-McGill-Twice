@@ -33,3 +33,5 @@
 /Users/othnielcundangan/Google Drive/Developer/Unity/McGill-Once-McGill-Twice/McGill-Once-McGill-Twice/Temp/bin/Debug/Mono.Cecil.Pdb.dll
 /Users/othnielcundangan/Google Drive/Developer/Unity/McGill-Once-McGill-Twice/McGill-Once-McGill-Twice/Temp/bin/Debug/Mono.Cecil.Mdb.dll
 /Users/othnielcundangan/Google Drive/Developer/Unity/McGill-Once-McGill-Twice/McGill-Once-McGill-Twice/Temp/bin/Debug/nunit.framework.dll
+/Users/othnielcundangan/Google Drive/Developer/Unity/McGill-Once-McGill-Twice/McGill-Once-McGill-Twice/Temp/bin/Debug/Pathfinding.Ionic.Zip.Reduced.dll
+/Users/othnielcundangan/Google Drive/Developer/Unity/McGill-Once-McGill-Twice/McGill-Once-McGill-Twice/Temp/bin/Debug/Pathfinding.JsonFx.dll

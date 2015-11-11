@@ -7,7 +7,7 @@ public abstract class TransitionTeleport : MonoBehaviour {
     
     private Collider TriggerCollider;
     [SerializeField] private Transform EntranceWalkTarget;
-    [SerializeField] private Transform EntranceCameraTarget;
+    [SerializeField] private Transform EntranceCameraPosition;
     [SerializeField] private Transform ExitSpawn;
     [SerializeField] private Transform ExitWalkTarget;
     [SerializeField] private Transform ExitCameraPosition;
@@ -65,8 +65,9 @@ public abstract class TransitionTeleport : MonoBehaviour {
     protected void DoTransition(ThirdPersonCharacterCustom player, Action<ThirdPersonCharacterCustom> finishTransition)
     {
         //  Prevent the camera from following the player into the teleport space and constrain the view
-        CameraManager.Instance.LockViewPosition();
-        CameraManager.Instance.SetViewLookAngleMax(this.EntranceCameraTarget.forward, 45f);
+        //  CameraManager.LockViewPosition();
+        CameraManager.SetViewPosition(this.EntranceCameraPosition.position);
+        CameraManager.SetViewLookAngleMax(this.EntranceCameraPosition.forward, 45f);
         
         //  The AI will walk the player
         player.DisableUserControls();
@@ -75,7 +76,7 @@ public abstract class TransitionTeleport : MonoBehaviour {
         Action walkFromSpawn = () => {
             player.AIController.SetTarget(this.ExitWalkTarget, () => {
                 
-                CameraManager.Instance.SetViewToPlayer();
+                CameraManager.SetViewToPlayer();
                 
                 player.DisableAIControls(false);
                 finishTransition(player);
@@ -91,27 +92,32 @@ public abstract class TransitionTeleport : MonoBehaviour {
                 { Debug.LogErrorFormat("{0} couldn't warp the player.", this); }
             
             //  Move the camera to the exit spawn
-            CameraManager.Instance.SetViewPosition(this.ExitCameraPosition.position, 10000f);
-            CameraManager.Instance.SetViewForward(this.ExitCameraPosition.forward);
-            CameraManager.Instance.ForceViewDirectionTowardsTarget(this.ExitWalkTarget.position);
+            //  CameraManager.SetViewPosition(this.ExitCameraPosition.position, CameraManager.MoveSpeedImmediate);
+            CameraManager.SetViewPositionImmediate(this.ExitCameraPosition.position);
+            CameraManager.SetViewForwardImmediate(this.ExitCameraPosition.forward);
+            CameraManager.ForceViewDirectionTowardsTarget(this.ExitCameraPosition.position + this.ExitCameraPosition.forward);
             
             //  Player has teleported so no need to prevent key spamming anymore
             TriggerCollider.enabled = true;
-            FadeToClear(walkFromSpawn);
+            
+            //  Fade to clear when the camera has successfully moved to the exit
+            Action<Vector3> fadeToClear = finalPosition => { FadeToClear(walkFromSpawn); };
+            CameraManager.CallbackOnPositionReached(fadeToClear);
+            //  FadeToClear(walkFromSpawn);
         };
-        
+
         //  Get the AI to move the player to the designated teleport space, fade when finished, then teleport
         player.AIController.SetTarget(this.EntranceWalkTarget, () => { FadeToBlack(teleport); });
     }
     
     private void FadeToBlack(Action callback)
     {
-        CameraManager.Instance.FadeToBlack(callback);
+        CameraManager.FadeToBlack(callback);
     }
     
     private void FadeToClear(Action callback)
     {
-        CameraManager.Instance.FadeToClear(callback);
+        CameraManager.FadeToClear(callback);
     }
     
     protected abstract void PrepareTransition(ThirdPersonCharacterCustom player);

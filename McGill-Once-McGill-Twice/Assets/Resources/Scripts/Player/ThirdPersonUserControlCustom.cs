@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityStandardAssets.CrossPlatformInput;
+using ExtensionMethods;
 
 [RequireComponent(typeof (ThirdPersonCharacterCustom))]
 public class ThirdPersonUserControlCustom : MonoBehaviour
@@ -59,9 +60,14 @@ public class ThirdPersonUserControlCustom : MonoBehaviour
             // we use world-relative directions in the case of no main camera
             m_Move = v*Vector3.forward + h*Vector3.right;
         }
+        
 #if !MOBILE_INPUT
-        // walk speed multiplier
-        if (Input.GetKey(KeyCode.LeftShift)) m_Move *= 0.5f;
+        // walk speed multiplier and clamp
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            m_Move *= 0.5f;
+            m_Move = m_Move.ClampMaxMagnitude(0.5f);
+        }
 #endif
 
         // pass all parameters to the character control script
