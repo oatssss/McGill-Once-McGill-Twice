@@ -66,7 +66,7 @@ public abstract class TransitionTeleport : MonoBehaviour {
     {
         //  Prevent the camera from following the player into the teleport space and constrain the view
         //  CameraManager.LockViewPosition();
-        CameraManager.SetViewPosition(this.EntranceCameraPosition.position);
+        CameraManager.SetViewPosition(this.EntranceCameraPosition.position, 3f);
         CameraManager.SetViewLookAngleMax(this.EntranceCameraPosition.forward, 45f);
         
         //  The AI will walk the player
@@ -95,7 +95,7 @@ public abstract class TransitionTeleport : MonoBehaviour {
             //  CameraManager.SetViewPosition(this.ExitCameraPosition.position, CameraManager.MoveSpeedImmediate);
             CameraManager.SetViewPositionImmediate(this.ExitCameraPosition.position);
             CameraManager.SetViewForwardImmediate(this.ExitCameraPosition.forward);
-            CameraManager.ForceViewDirectionTowardsTarget(this.ExitCameraPosition.position + this.ExitCameraPosition.forward);
+            CameraManager.SetViewDirectionTowardsTarget(this.ExitCameraPosition.position + this.ExitCameraPosition.forward);
             
             //  Player has teleported so no need to prevent key spamming anymore
             TriggerCollider.enabled = true;

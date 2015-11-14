@@ -134,11 +134,14 @@ public class FreeLookCamCustom : PivotBasedCameraRig
         }
     }
     
+   /* * * * * * * * * * * * * * * * * * * * * * * *
+    *   Accessors to adjust the looking angle     * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    * * * * * * * * * * * * * * * * * * * * * * * */
     private Coroutine AdjustingLookAngleMax = null;
     private IEnumerator AdjustLookAngleMax(float maxAngle, float speed)
     {
         float original = m_LookAngleMax;
-        float t_max = GameConstants.TransitionSpeedMultiplier/speed;
+        float t_max = GameConstants.TRANSITION_SPEED_MULTIPLIER/speed;
         float t = 0;
         
         while (t < t_max)
@@ -166,14 +169,17 @@ public class FreeLookCamCustom : PivotBasedCameraRig
     
     public void SetLookAngleMax(float maxAngle)
     {
-        SetLookAngleMax(maxAngle, m_MoveSpeed);
+        SetLookAngleMax(maxAngle, m_OriginalMoveSpeed);
     }
     
+   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    *   Accessors to adjust the forward direction (forward is used for look angle constraints)  * * * * * * * * * * * * * * * * * * * * * * *
+    * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
     private Coroutine AdjustingForwardDirection = null;
     private IEnumerator AdjustForwardDirection(Vector3 forward, float speed)
     {
         Vector3 original = m_ForwardDirection;
-        float t_max = GameConstants.TransitionSpeedMultiplier/speed;
+        float t_max = GameConstants.TRANSITION_SPEED_MULTIPLIER/speed;
         float t = 0;
         
         while (t < t_max)
@@ -201,10 +207,13 @@ public class FreeLookCamCustom : PivotBasedCameraRig
     
     public void SetForwardDirection(Vector3 forward)
     {
-        SetForwardDirection(forward, m_MoveSpeed);
+        SetForwardDirection(forward, m_OriginalMoveSpeed);
     }
     
-    public void ForceViewDirectionTowardsTarget(Vector3 targetPosition)
+   /* * * * * * * * * * * * * * * * * * * * * * *
+    *   Accessor to adjust the view direction   * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    * * * * * * * * * * * * * * * * * * * * * * */
+    public void SetViewDirectionTowardsTarget(Vector3 targetPosition)
     {
         Vector3 viewDirection = targetPosition - m_Pivot.transform.position;
         Quaternion viewRotation = Quaternion.LookRotation(viewDirection);
@@ -213,12 +222,15 @@ public class FreeLookCamCustom : PivotBasedCameraRig
         m_Pivot.localRotation = viewRotation;
     }
     
+   /* * * * * * * * * * * * * * * * * * * * * * *
+    *   Accessors to adjust the pivot radius    * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    * * * * * * * * * * * * * * * * * * * * * * */
     private Coroutine AdjustingPivotRadius = null;
     private IEnumerator AdjustPivotRadius(float radius, float speed)
     {
         radius = -Mathf.Abs(radius);
         float original = m_Cam.localPosition.z;
-        float t_max = GameConstants.TransitionSpeedMultiplier/speed;
+        float t_max = GameConstants.TRANSITION_SPEED_MULTIPLIER/speed;
         float t = 0;
         
         while (t < t_max)
@@ -254,9 +266,12 @@ public class FreeLookCamCustom : PivotBasedCameraRig
     
     public void SetPivotRadius(float radius)
     {
-        SetPivotRadius(radius, m_MoveSpeed);
+        SetPivotRadius(radius, m_OriginalMoveSpeed);
     }
     
+   /* * * * * * * * * * * * * * * * * * * * * * *
+    *   Accessors to lock the camera position   * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    * * * * * * * * * * * * * * * * * * * * * * */
     public void LockPositionImmediate(Vector3 position)
     {
         GameObject lockTargetObject = new GameObject("CameraLockTarget");
@@ -281,7 +296,7 @@ public class FreeLookCamCustom : PivotBasedCameraRig
     
     public void LockPosition(Vector3 position)
     {
-        LockPosition(position, m_MoveSpeed);
+        LockPosition(position, m_OriginalMoveSpeed);
     }
     
     public void LockPosition()
@@ -289,6 +304,9 @@ public class FreeLookCamCustom : PivotBasedCameraRig
         LockPosition(m_Target.position);
     }
     
+   /* * * * * * * * * * * * * * * * * * * * * * * *
+    *   Accessors to unlock the camera position   * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    * * * * * * * * * * * * * * * * * * * * * * * */
     public void UnlockPosition(float moveSpeed)
     {
         if (this.UnlockTarget != null)
@@ -302,9 +320,12 @@ public class FreeLookCamCustom : PivotBasedCameraRig
     
     public void UnlockPosition()
     {
-        UnlockPosition(m_MoveSpeed);
+        UnlockPosition(m_OriginalMoveSpeed);
     }
     
+   /* * * * * * * * * * * * * * * * * * * * * * * * * * *
+    *   Accessors to change the camera follow target    * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    * * * * * * * * * * * * * * * * * * * * * * * * * * */
     public void SetTarget(Transform target, float moveSpeed)
     {
         base.SetTarget(target);
@@ -315,7 +336,7 @@ public class FreeLookCamCustom : PivotBasedCameraRig
     
     public override void SetTarget(Transform target)
     {
-        SetTarget(target, m_MoveSpeed);
+        SetTarget(target, m_OriginalMoveSpeed);
     }
     
     public void SetPlayerAsTarget(float moveSpeed)
@@ -326,9 +347,12 @@ public class FreeLookCamCustom : PivotBasedCameraRig
     
     public void SetPlayerAsTarget()
     {
-        SetPlayerAsTarget(m_MoveSpeed);
+        SetPlayerAsTarget(m_OriginalMoveSpeed);
     }
     
+   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    *   Accessors to add a callback when the camera reaches its follow target's position  * * * * * * * * * * * * * * * * * * * * * * * * * *
+    * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
     private event Action<Vector3> FinishedRetarget = null;
     private Coroutine CheckingRetargetFinished;
     private IEnumerator CheckRetargetFinished()

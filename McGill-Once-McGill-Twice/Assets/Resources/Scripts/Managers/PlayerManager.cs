@@ -2,17 +2,17 @@
 
 public class PlayerManager : UnitySingleton<PlayerManager> {
     
-    [SerializeField] private static ThirdPersonCharacterCustom _MainPlayer;    
-    public static ThirdPersonCharacterCustom MainPlayer
+    [SerializeField] private static Player _MainPlayer;
+    public static Player MainPlayer
     {
         get
         {
             if (_MainPlayer == null)
             {
-                GameObject player = GameObject.FindWithTag("Player");
+                GameObject player = GameObject.FindWithTag(GameConstants.TAG_MAINPLAYER);
                 if (player != null)
                 {
-                    ThirdPersonCharacterCustom playerScript = player.GetComponent<ThirdPersonCharacterCustom>();
+                    Player playerScript = player.GetComponent<Player>();
                     if (playerScript != null)
                         { return playerScript; }
                 }

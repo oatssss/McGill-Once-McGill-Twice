@@ -1,5 +1,4 @@
 using UnityEngine;
-using System;
 
 [RequireComponent(typeof (NavMeshAgent))]
 [RequireComponent(typeof (ThirdPersonCharacterCustom))]
@@ -31,6 +30,9 @@ public class AICharacterControlCustom : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
+        //  Agent's speed should never be over 1.0
+        agent.speed = Mathf.Clamp01(agent.speed);
+        
         if (target != null)
         {
             agent.SetDestination(target.position);

@@ -11,39 +11,7 @@ public class CameraManager : UnitySingleton<CameraManager>
     [SerializeField] private CanvasRenderer FadeRenderer;
     [SerializeField] private FreeLookCamCustom CamScript;
     [SerializeField] private ProtectCameraFromWallClipCustom CamWallProtectScript;
-    /*private FreeLookCamCustom CamScript
-    {
-        get
-        {
-            GameObject cameraRig = GameObject.FindWithTag("CameraRig");
-            if (cameraRig != null)
-            {
-                FreeLookCamCustom camScript = cameraRig.GetComponent<FreeLookCamCustom>();
-                if (camScript != null)
-                    { return camScript; }
-            }
-
-            Debug.LogErrorFormat("{0} could not obtain the camera script.", this);
-            return null;
-        }
-    }*/
     
-    /*private ProtectCameraFromWallClip CamWallProtectScript
-    {
-        get
-        {
-            GameObject cameraRig = GameObject.FindWithTag("CameraRig");
-            if (cameraRig != null)
-            {
-                ProtectCameraFromWallClip camWallProtectScript = cameraRig.GetComponent<ProtectCameraFromWallClip>();
-                if (camWallProtectScript != null)
-                    { return camWallProtectScript; }
-            }
-
-            Debug.LogErrorFormat("{0} could not obtain the wallclip protection script.", this);
-            return null;
-        }
-    }*/
     
     void Start()
     {
@@ -120,9 +88,9 @@ public class CameraManager : UnitySingleton<CameraManager>
         Instance.CamScript.SetForwardDirection(forward);
     }
     
-    public static void ForceViewDirectionTowardsTarget(Vector3 targetPos)
+    public static void SetViewDirectionTowardsTarget(Vector3 targetPos)
     {
-        Instance.CamScript.ForceViewDirectionTowardsTarget(targetPos);
+        Instance.CamScript.SetViewDirectionTowardsTarget(targetPos);
     }
     
     public static void SetPivotRadiusImmediate(float radius)
@@ -165,14 +133,6 @@ public class CameraManager : UnitySingleton<CameraManager>
     public static void SetViewPosition(Vector3 position, float moveSpeed)
     {
         Instance.CamScript.LockPosition(position, moveSpeed);
-        
-        //  Account for wall collisions if setting the view position to be an immediate snap
-        //  if (moveSpeed >= MoveSpeedImmediate)
-        //  {
-        //      float originalReturnTime = Instance.CamWallProtectScript.returnTime;
-        //      Instance.CamWallProtectScript.returnTime = 0f;
-        //      CallbackOnPositionReached( finalPosition => { Instance.CamWallProtectScript.returnTime = originalReturnTime; } );
-        //  }
     }
     
     public static void SetViewPosition(Vector3 position)
