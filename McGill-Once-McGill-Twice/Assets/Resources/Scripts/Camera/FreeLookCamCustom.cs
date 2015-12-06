@@ -31,7 +31,7 @@ public class FreeLookCamCustom : PivotBasedCameraRig
     private const float k_LookDistance = 100f;    // How far in front of the pivot the character's look target is.
     private Vector3 m_PivotEulers;
     private Quaternion m_PivotTargetRot;
-    private Quaternion m_TransformTargetRot;
+    //  private Quaternion m_TransformTargetRot;
     
     private Transform _LockTarget;
     private Transform LockTarget
@@ -59,7 +59,7 @@ public class FreeLookCamCustom : PivotBasedCameraRig
         m_PivotEulers = m_Pivot.rotation.eulerAngles;
 
         m_PivotTargetRot = m_Pivot.transform.localRotation;
-        m_TransformTargetRot = transform.localRotation;
+        //  m_TransformTargetRot = transform.localRotation;
     }
 
 
@@ -341,7 +341,7 @@ public class FreeLookCamCustom : PivotBasedCameraRig
     
     public void SetPlayerAsTarget(float moveSpeed)
     {
-        SetTarget(PlayerManager.MainPlayer.transform.Find("CameraTarget"), moveSpeed);
+        SetTarget(PlayerManager.GetMainPlayer().transform.Find("CameraTarget"), moveSpeed);
         SetPivotRadius(2f);
     }
     
@@ -353,35 +353,35 @@ public class FreeLookCamCustom : PivotBasedCameraRig
    /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
     *   Accessors to add a callback when the camera reaches its follow target's position  * * * * * * * * * * * * * * * * * * * * * * * * * *
     * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-    private event Action<Vector3> FinishedRetarget = null;
-    private Coroutine CheckingRetargetFinished;
-    private IEnumerator CheckRetargetFinished()
+    private event Action<Vector3> PositionReached = null;
+    private Coroutine CheckingPositionReached;
+    private IEnumerator CheckPositionReached()
     {
         while (transform.position != m_Target.position || !Mathf.Approximately(m_Cam.localPosition.z, -ProtectWallClipScript.GetOriginalDistance()))
             { yield return null; }
         //  callback();
 
         //  Call the FinishedRetarget event to trigger any registered callbacks
-        if (FinishedRetarget != null)
+        if (PositionReached != null)
         {
-            FinishedRetarget(m_Target.position);
+            PositionReached(m_Target.position);
 
             //  Remove all the callbacks once they've been triggered
-            Delegate[] callbacks = FinishedRetarget.GetInvocationList();
+            Delegate[] callbacks = PositionReached.GetInvocationList();
             foreach (Delegate callback in callbacks)
-                { FinishedRetarget -= (callback as Action<Vector3>); }
+                { PositionReached -= (callback as Action<Vector3>); }
         }
         
-        CheckingRetargetFinished = null;
+        CheckingPositionReached = null;
     }
-    public void CallbackOnRetarget(Action<Vector3> callback)
+    public void CallbackOnPositionReached(Action<Vector3> callback)
     {
         //  Register the callback
-        FinishedRetarget += callback;
+        PositionReached += callback;
         
         //  Only check for the retarget finish if not already checking
-        if (CheckingRetargetFinished == null)
-            { StartCoroutine(CheckRetargetFinished()); }
+        if (CheckingPositionReached == null)
+            { CheckingPositionReached = StartCoroutine(CheckPositionReached()); }
     }
     
     private void TemporarilyAdjustMoveSpeed(float speed)
@@ -389,11 +389,11 @@ public class FreeLookCamCustom : PivotBasedCameraRig
         m_MoveSpeed = speed;
         
         //  Only revert to the untampered speed if it was untampered to begin with, check for the finish if not already checking
-        if (CheckingRetargetFinished == null)
+        if (CheckingPositionReached == null)
         {
-            Action<Vector3> revertSpeed = finalPosition => { m_MoveSpeed = m_OriginalMoveSpeed; CheckingRetargetFinished = null; };
-            FinishedRetarget += revertSpeed;
-            StartCoroutine(CheckRetargetFinished());
+            Action<Vector3> revertSpeed = finalPosition => { m_MoveSpeed = m_OriginalMoveSpeed; CheckingPositionReached = null; };
+            PositionReached += revertSpeed;
+            CheckingPositionReached = StartCoroutine(CheckPositionReached());
         }
     }
     

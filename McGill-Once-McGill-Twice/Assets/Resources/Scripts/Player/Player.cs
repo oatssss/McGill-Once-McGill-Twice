@@ -29,22 +29,37 @@ public class Player : MonoBehaviour {
         }
     }
     
-    [Range(0f, 100f)] public float SleepStatus;
-    [Range(0f, 100f)] public float GradesStatus;
-    [Range(0f, 100f)] public float SocialStatus;
+    [Range(0f, 100f)] [SerializeField] private float _SleepStatus = 100f;
+    [Range(0f, 100f)] [SerializeField] private float _AcademicStatus = 100f;
+    [Range(0f, 100f)] [SerializeField] private float _SocialStatus = 100f;
+    public float SleepStatus { get { return _SleepStatus; } set { _SleepStatus = Mathf.Clamp(value, 0f, 100f); } }
+    public float AcademicStatus { get { return _AcademicStatus; } set { _AcademicStatus = Mathf.Clamp(value, 0f, 100f); } }
+    public float SocialStatus { get { return _SocialStatus; } set { _SocialStatus = Mathf.Clamp(value, 0f, 100f); } }
 
 	// Use this for initialization
 	void Start () {
-	
+	   
 	}
 	
-	// Update is called once per frame
 	void Update () {
-	
+        //  Continually check if the player's dead
+        int emptyBars = 0;
+        
+        if (this.SleepStatus <= 0)
+            { emptyBars++; }
+        if (this.AcademicStatus <= 0)
+            { emptyBars++; }
+        if (this.SocialStatus <= 0)
+            { emptyBars++; }
+            
+        if (emptyBars >= 2)
+            { Die(); }
 	}
     
     public void Die()
     {
-        throw new NotImplementedException();
+        //  TODO : Trigger death animation and disable user controls
+        //  TODO : Display death/respawn UI
+        Destroy(gameObject);
     }
 }

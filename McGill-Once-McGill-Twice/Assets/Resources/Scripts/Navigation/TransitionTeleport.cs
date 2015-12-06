@@ -112,12 +112,12 @@ public abstract class TransitionTeleport : MonoBehaviour {
     
     private void FadeToBlack(Action callback)
     {
-        CameraManager.FadeToBlack(callback);
+        GUIManager.MinorFadeToBlack(callback);
     }
     
     private void FadeToClear(Action callback)
     {
-        CameraManager.FadeToClear(callback);
+        GUIManager.MinorFadeToClear(callback);
     }
     
     protected abstract void PrepareTransition(ThirdPersonCharacterCustom player);
