@@ -53,6 +53,7 @@
      <Compile Include="Assets\Resources\Scripts\Managers\CameraManager.cs" />
      <Compile Include="Assets\Resources\Scripts\Managers\GUIManager.cs" />
      <Compile Include="Assets\Resources\Scripts\Managers\GameConstants.cs" />
+     <Compile Include="Assets\Resources\Scripts\Managers\IOManager.cs" />
      <Compile Include="Assets\Resources\Scripts\Managers\PlayerManager.cs" />
      <Compile Include="Assets\Resources\Scripts\Navigation\TransitionMinigame.cs" />
      <Compile Include="Assets\Resources\Scripts\Navigation\TransitionTeleport.cs" />

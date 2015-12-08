@@ -45,7 +45,7 @@ public class PlayerManager : UnitySingleton<PlayerManager> {
         return GetMainPlayer(true);
     }
     
-    void Start()
+    void OnEnable()
     {
         // PlayerIsAlive = true;
     }

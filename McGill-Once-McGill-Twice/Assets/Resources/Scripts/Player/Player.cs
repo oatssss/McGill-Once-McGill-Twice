@@ -37,7 +37,7 @@ public class Player : MonoBehaviour {
     public float SocialStatus { get { return _SocialStatus; } set { _SocialStatus = Mathf.Clamp(value, 0f, 100f); } }
 
 	// Use this for initialization
-	void Start () {
+	void OnEnable () {
 	   
 	}
 	

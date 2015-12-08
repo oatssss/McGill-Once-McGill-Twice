@@ -12,7 +12,7 @@ public class ThirdPersonUserControlCustom : MonoBehaviour
     private bool m_Jump;                      // the world-relative desired move direction, calculated from the camForward and user input.
 
     
-    private void Start()
+    private void OnEnable()
     {
         // get the transform of the main camera
         if (Camera.main != null)

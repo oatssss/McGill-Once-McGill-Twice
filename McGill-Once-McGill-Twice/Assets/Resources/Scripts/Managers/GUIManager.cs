@@ -16,7 +16,7 @@ public class GUIManager : UnitySingleton<GUIManager> {
     [SerializeField] private Text SocialPoints;
 
 	// Use this for initialization
-	void Start ()
+	void OnEnable ()
     {
 	   MajorFadeToClear(null);
 	}
