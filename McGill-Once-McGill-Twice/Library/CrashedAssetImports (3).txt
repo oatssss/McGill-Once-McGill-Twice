@@ -1,0 +1,2 @@
+Assets/Resources/Models/Characters/Malcolm/50-LOD/Malcolm_50-LOD.fbm/Malcom_Body_Diffuse.png
+Assets/Resources/Models/Characters/Malcolm/75-LOD/Malcolm_75-LOD.fbm/Malcom_Hair_Specular.png

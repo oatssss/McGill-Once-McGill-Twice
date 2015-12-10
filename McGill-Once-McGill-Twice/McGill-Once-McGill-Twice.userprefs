@@ -1,0 +1,16 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Resources/Scripts/Managers/PlayerManager.cs">
+    <Files>
+      <File FileName="Assets/Resources/Scripts/Navigation/TransitionMinigame.cs" Line="1" Column="1" />
+      <File FileName="Assets/Resources/Scripts/Managers/CameraManager.cs" Line="1" Column="1" />
+      <File FileName="Assets/Resources/Scripts/Player/Player.cs" Line="1" Column="1" />
+      <File FileName="Assets/Resources/Scripts/Navigation/TransitionTeleport.cs" Line="41" Column="5" />
+      <File FileName="Assets/Resources/Scripts/Managers/PlayerManager.cs" Line="1" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

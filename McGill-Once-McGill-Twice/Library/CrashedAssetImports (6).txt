@@ -1,0 +1,2 @@
+Assets/Resources/Models/Characters/Malcolm/50-LOD/Malcolm_50-LOD.fbm/Malcom_Bottom_Diffuse.png
+Assets/Resources/Models/Characters/Malcolm/50-LOD/Malcolm_50-LOD.fbx

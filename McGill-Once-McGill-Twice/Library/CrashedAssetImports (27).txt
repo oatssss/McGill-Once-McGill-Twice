@@ -1,0 +1,2 @@
+Assets/Andromeda@walking_turn_180.fbx
+Assets/Materials/Andromeda_Top_Diffuse.mat
