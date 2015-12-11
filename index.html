@@ -9,35 +9,71 @@
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
     <style type="text/css">
-      .video-container {
+      .youtube-container {
         position:relative;
         padding-bottom:56.25%;
-        padding-top:30px;
+        /*padding-top:2em;*/
         height:0;
         overflow:hidden;
       }
-
-      .video-container iframe, .video-container object, .video-container embed {
+      .youtube-container iframe, .youtube-container object, .youtube-container embed {
         position:absolute;
         top:0;
         left:0;
         width:100%;
         height:100%;
       }
+      .splash-container {
+        position:relative;
+        padding-bottom:56.25%;
+        height:0;
+        overflow:hidden;
+      }
+      .splash-container iframe, .splash-container object, .splash-container embed {
+        position:absolute;
+        /*width:100%;
+        height:100%;*/
+      }
+      video {
+        max-width: 100%;
+        height: auto;
+      }
+      .builds {
+        bottom: 2em;
+        position: absolute;
+        width: 100%;
+      }
+      .stroke
+      {
+          color: white;
+          text-shadow:
+          -2px -2px 0 #000,
+          2px -2px 0 #000,
+          -2px 2px 0 #000,
+          2px 2px 0 #000;
+          opacity: 1;
+      }
     </style>
   </head>
   <body>
-    <section class="page-header">
-      <h1 class="project-name">McGill Once McGill Twice</h1>
-      <h2 class="project-tagline">Latest Builds</h2>
-      <a href="http://dev.othnielcundangan.me/content-delivery/mcgill-once-mcgill-twice/Mac.Launcher.zip" class="btn">Mac</a>
-      <a href="http://dev.othnielcundangan.me/content-delivery/mcgill-once-mcgill-twice/Windows.Launcher.zip" class="btn">Windows</a>
+    <section id="video-landing" class="page-header">
+      <div class="splash-container">
+        <!-- <h1 class="project-name">McGill Once McGill Twice</h1> -->
+        <div class="builds stroke">
+          <h2 class="project-tagline">Latest Builds</h2>
+          <a href="http://dev.othnielcundangan.me/content-delivery/mcgill-once-mcgill-twice/Mac.Launcher.zip" class="btn">Mac</a>
+          <a href="http://dev.othnielcundangan.me/content-delivery/mcgill-once-mcgill-twice/Windows.Launcher.zip" class="btn">Windows</a>
+        </div>
+        <video width="500" height="900" autoplay="autoplay" loop="loop" id="bgvid"> <!-- width="500" height="900" -->
+          <source src="splash.mp4" type="video/mp4" /> 
+          Your browser does not support the video tag.
+        </video>
+      </div>
     </section>
 
     <section class="main-content">
-      
       <div style="text-align: center; padding: 2em">
-        <div class="video-container">
+        <div class="youtube-container">
           <iframe width="640" height="480" src="https://www.youtube.com/embed/saUSuWh4Pvg?rel=0" frameborder="0" allowfullscreen></iframe>
         </div>
       </div>
@@ -89,6 +125,5 @@ Superb graphic design and photography skills
 
     </section>
 
-  
   </body>
 </html>

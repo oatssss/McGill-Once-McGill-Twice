@@ -1,0 +1,4 @@
+1) At any point in time, the input axis vector will be the forward vector
+2) These will be the values for the direct blend tree parameters
+    i)      "Idle" = 1 - Movement amount [0,1]
+    ii)     

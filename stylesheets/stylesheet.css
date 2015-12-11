@@ -17,6 +17,7 @@ a {
 
 .btn {
   display: inline-block;
+  /*margin-top: 10cm;*/
   margin-bottom: 1rem;
   color: rgba(255, 255, 255, 0.7);
   background-color: rgba(255, 255, 255, 0.08);
@@ -56,10 +57,10 @@ a {
 .page-header {
   color: #fff;
   text-align: center;
-  background-color: #159957;
-  background-image: linear-gradient(120deg, #155799, #159957); }
+  /*background-color: #159957;
+  background-image: linear-gradient(120deg, #155799, #159957);*/ }
 
-@media screen and (min-width: 64em) {
+/*@media screen and (min-width: 64em) {
   .page-header {
     padding: 5rem 6rem; } }
 
@@ -69,7 +70,7 @@ a {
 
 @media screen and (max-width: 42em) {
   .page-header {
-    padding: 2rem 1rem; } }
+    padding: 2rem 1rem; } }*/
 
 .project-name {
   margin-top: 0;
@@ -88,6 +89,7 @@ a {
     font-size: 1.75rem; } }
 
 .project-tagline {
+  margin-top: 410px;
   margin-bottom: 2rem;
   font-weight: normal;
   opacity: 0.7; }
@@ -243,3 +245,32 @@ a {
 @media screen and (max-width: 42em) {
   .site-footer {
     font-size: 0.9rem; } }
+
+/*for background video*/
+/*#video-landing {
+  height: 700px;
+  position: relative;
+  overflow-y: hidden;
+  color: white;
+}*/
+
+#video-landing video {
+  position: absolute;
+  min-height: 100%;
+  min-width: 100%;
+  /*top: -1em;*/
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: -100;
+}
+
+/*for placing header at the bottom*/
+/*.bottom2{
+  position: absolute;
+  bottom: 0px;
+}*/
+
+/*.bottom2 + .bottom2{
+  margin-left: 1rem;
+}*/
