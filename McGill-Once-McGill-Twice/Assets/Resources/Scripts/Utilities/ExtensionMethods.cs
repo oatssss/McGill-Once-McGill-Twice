@@ -60,5 +60,28 @@ namespace ExtensionMethods
         {
             return toClamp.ClampMagnitude(0f, maxMagnitude);
         }
+        
+        //
+        // RPC AS MASTER EXTENSIONS
+        //
+        public static void RpcAsMaster(this PhotonView photonView, string methodName, PhotonTargets target, params object[] parameters)
+        {
+            RpcManager.SendRpcToMaster(photonView, methodName, target, parameters);
+        }
+        
+        public static void RpcAsMaster(this PhotonView photonView, string methodName, PhotonPlayer targetPlayer, params object[] parameters)
+        {
+            RpcManager.SendRpcToMaster(photonView, methodName, targetPlayer, parameters);
+        }
+        
+        public static void RpcSecureAsMaster(this PhotonView photonView, string methodName, PhotonTargets target, bool encrypt, params object[] parameters)
+        {
+            RpcManager.SendRpcSecureToMaster(photonView, methodName, target, encrypt, parameters);
+        }
+        
+        public static void RpcSecureAsMaster(this PhotonView photonView, string methodName, PhotonPlayer targetPlayer, bool encrypt, params object[] parameters)
+        {
+            RpcManager.SendRpcSecureToMaster(photonView, methodName, targetPlayer, encrypt, parameters);
+        }
     }
 }

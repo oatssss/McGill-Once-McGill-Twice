@@ -361,7 +361,7 @@ public class FreeLookCamCustom : PivotBasedCameraRig
             { yield return null; }
         //  callback();
 
-        //  Call the FinishedRetarget event to trigger any registered callbacks
+        //  Call the PositionReached event to trigger any registered callbacks
         if (PositionReached != null)
         {
             PositionReached(m_Target.position);

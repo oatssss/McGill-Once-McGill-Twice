@@ -9,6 +9,7 @@ public class GUIManager : UnitySingleton<GUIManager> {
     public static readonly float FadeDuration = 0.5f;
     
     private Coroutine Fading = null;
+    [SerializeField] public Canvas Canvas;
     [SerializeField] private CanvasRenderer MinorFadeRenderer;
     [SerializeField] private CanvasRenderer MajorFadeRenderer;
     [SerializeField] private Text SleepPoints;
