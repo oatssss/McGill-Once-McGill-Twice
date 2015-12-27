@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
-
+using System;
+// using UnityEditor;
 
 namespace ExtensionMethods
 {
@@ -83,5 +84,27 @@ namespace ExtensionMethods
         {
             RpcManager.SendRpcSecureToMaster(photonView, methodName, targetPlayer, encrypt, parameters);
         }
+        
+        /*
+        //
+        // ASSET DATABASE EXTENSIONS
+        //
+        public static string GetResourcesRelativePath(this GameObject asset)
+        {
+            string assetsRelativeString = "/" + AssetDatabase.GetAssetPath(asset);
+            string resourcesString = "/Assets/Resources/";
+            
+            // Strip the file extension off
+            int fileExtPos = assetsRelativeString.LastIndexOf(".");
+            if (fileExtPos >= 0 )
+                { assetsRelativeString = assetsRelativeString.Substring(0, fileExtPos); }
+            
+            Uri assetsRelativeUri = new Uri(assetsRelativeString, UriKind.Absolute);
+            Uri resourcesUri = new Uri(resourcesString, UriKind.Absolute);
+            
+            string resourcesRelativePath = resourcesUri.MakeRelativeUri(assetsRelativeUri).ToString();
+            return resourcesRelativePath;
+        }
+        */
     }
 }

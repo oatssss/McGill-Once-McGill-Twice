@@ -38,7 +38,8 @@ public abstract class Minigame : Photon.MonoBehaviour
     /// </summary>
     public void StartGame()
     {
-        this.photonView.RpcAsMaster("StartGame", PhotonTargets.AllBufferedViaServer);
+        // this.photonView.RpcAsMaster("StartGame", PhotonTargets.AllBufferedViaServer);
+        this.photonView.RPC("StartGame", PhotonTargets.AllBufferedViaServer);
     }
 
     /// <summary>
@@ -89,7 +90,8 @@ public abstract class Minigame : Photon.MonoBehaviour
     /// </param>
     public void AddPlayerToTeam(MinigameTeam team)
     {
-        this.photonView.RpcAsMaster("AddPlayerToTeam", PhotonTargets.AllBufferedViaServer, PhotonNetwork.player, team);
+        // this.photonView.RpcAsMaster("AddPlayerToTeam", PhotonTargets.AllBufferedViaServer, PhotonNetwork.player, team);
+        this.photonView.RPC("AddPlayerToTeam", PhotonTargets.AllBufferedViaServer, PhotonNetwork.player, team);
     }
     
     /// <summary>
@@ -142,7 +144,8 @@ public abstract class Minigame : Photon.MonoBehaviour
     /// </param>
     public void RemovePlayerFromTeam(MinigameTeam team)
     {
-        this.photonView.RpcAsMaster("RemovePlayerFromTeam", PhotonTargets.AllBufferedViaServer, PhotonNetwork.player, team);
+        // this.photonView.RpcAsMaster("RemovePlayerFromTeam", PhotonTargets.AllBufferedViaServer, PhotonNetwork.player, team);
+        this.photonView.RPC("RemovePlayerFromTeam", PhotonTargets.AllBufferedViaServer, PhotonNetwork.player, team);
     }
 
     /// <summary>

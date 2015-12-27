@@ -15,5 +15,8 @@ public class GameConstants {
     public static readonly string TAG_GROUND = "Ground";
     public static readonly string TAG_OBSTACLE = "Obstacle";
     
+    //  Static list of assets
+    public static readonly string ASSET_MALCOLM = "Prefabs/Characters/Malcolm/Malcolm";
+    
     public static readonly float TRANSITION_SPEED_MULTIPLIER = 7f;
 }

@@ -1,10 +1,9 @@
 ﻿using UnityEngine;
-using System;
 
 public class PlayerManager : UnitySingleton<PlayerManager> {
     
-    [SerializeField] private Transform Malcolm;
-    [SerializeField] private Transform Andromeda;
+    [SerializeField] private GameObject Malcolm;
+    [SerializeField] private GameObject Andromeda;
     // public static bool PlayerIsAlive { get; private set; }
     [SerializeField] private static Player MainPlayer;
     
@@ -55,9 +54,16 @@ public class PlayerManager : UnitySingleton<PlayerManager> {
     {
         if (MainPlayer != null)
             { return; }
+            
+        // string playerAssetPath = Instance.Malcolm.GetResourcesRelativePath();
+        // GameObject playerObject = PhotonNetwork.Instantiate(playerAssetPath, Instance.Malcolm.transform.position, Instance.Malcolm.transform.rotation, 0);
+        GameObject playerObject = PhotonNetwork.Instantiate(GameConstants.ASSET_MALCOLM, Instance.Malcolm.transform.position, Instance.Malcolm.transform.rotation, 0);
+        playerObject.tag = GameConstants.TAG_MAINPLAYER;
+        MainPlayer = playerObject.GetComponent<Player>();
+        MainPlayer.ThirdPersonCharacter.EnableUserControls();
         
-        Instantiate<Transform>(Instance.Malcolm);
         CameraManager.SetViewToPlayer();
+        
         // PlayerIsAlive = true;
     }
     
