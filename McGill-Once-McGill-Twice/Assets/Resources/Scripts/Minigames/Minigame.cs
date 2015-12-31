@@ -3,11 +3,16 @@ using System.Collections.Generic;
 using System;
 using ExtensionMethods;
 
-public abstract class Minigame : Photon.MonoBehaviour
+public abstract class Minigame : Photon.PunBehaviour
 {
-    [SerializeField] private List<MinigameTeam> Teams = new List<MinigameTeam>();
+    private List<MinigameTeam> Teams;
     [SerializeField] private Transform InstructionPrefab;
     [SerializeField] private Transform GameInfoPrefab;
+    
+    protected virtual void Awake()
+    {
+        this.Teams = new List<MinigameTeam>();
+    }
 
     /// <summary>
     ///  Displays the minigame's instruction UI to the player.
@@ -17,7 +22,7 @@ public abstract class Minigame : Photon.MonoBehaviour
         Transform prefab = Instantiate(InstructionPrefab);
         prefab.SetParent(GUIManager.Instance.Canvas.transform, false);
         
-        // TODO : Set focus, then Use animator to transition
+        // TODO : Set focus, then Use animator to transition UI
         throw new NotImplementedException();
     }
 
@@ -34,7 +39,7 @@ public abstract class Minigame : Photon.MonoBehaviour
     }
     
     /// <summary>
-    ///  Requests the MasterClient to start the game.
+    ///  Starts the game for all players on the teams.
     /// </summary>
     public void StartGame()
     {
@@ -43,7 +48,7 @@ public abstract class Minigame : Photon.MonoBehaviour
     }
 
     /// <summary>
-    ///  RPC called by the MasterClient to start the game.
+    ///  RPC called by a client in the same game triggering game start.
     /// </summary>
     /// <param name="info"> The info provided by the RPC sender (sender should always be the MasterClient).
     /// </param>
@@ -51,12 +56,12 @@ public abstract class Minigame : Photon.MonoBehaviour
     protected abstract void StartGame(PhotonMessageInfo info);
 
     /// <summary>
-    ///  RPC called by the MasterClient to end the game and reset the minigame state.
+    ///  RPC called by a client in the same game trigerring teams to reset and allowing control over player again.
     /// </summary>
     /// <param name="info"> The info provided by the RPC sender (sender should always be the MasterClient).
     /// </param>
     [PunRPC]
-    private void EndGame(PhotonMessageInfo info)
+    protected void EndGame(PhotonMessageInfo info)
     {
         foreach (MinigameTeam team in this.Teams)
         {
@@ -72,19 +77,9 @@ public abstract class Minigame : Photon.MonoBehaviour
         // Perform any supplemental events such as awarding achievements
         // this.EndGame();
     }
-    
-    /*
-    /// <summary>
-    ///  RPC called by the MasterClient to end the game and reset the minigame state.
-    /// </summary>
-    protected virtual void EndGame()
-    {
-        // Do nothing as an adapter
-    }
-    */
 
     /// <summary>
-    ///  Requests the MasterClient to add this player to the corresponding team.
+    ///  Requests this client's player to be added to <paramref name="team"/>.
     /// </summary>
     /// <param name="team"> The team to add this player to.
     /// </param>
@@ -95,7 +90,7 @@ public abstract class Minigame : Photon.MonoBehaviour
     }
     
     /// <summary>
-    ///  RPC called by the MasterClient to add the corresponding player to the corresponding team.
+    ///  RPC called by the client wanting to be added to the corresponding team.
     /// </summary>
     /// <param name="player"> The player that's added to <paramref name="team"/>.
     /// </param>
@@ -104,10 +99,10 @@ public abstract class Minigame : Photon.MonoBehaviour
     /// <param name="info"> The info provided by the RPC sender (sender should always be the MasterClient).
     /// </param>
     [PunRPC]
-    private void AddPlayerToTeam(PhotonPlayer player, MinigameTeam team, PhotonMessageInfo info)
+    protected void AddPlayerToTeam(PhotonPlayer player, MinigameTeam team, PhotonMessageInfo info)
     {
         // Find the matching team
-        MinigameTeam actualTeam = this.Teams.Find(item => item.Equals(team));
+        MinigameTeam actualTeam = this.Teams.Find(listItem => listItem.Equals(team));
         
         // Add the player to the team, if the player is the client, trigger the events associated with joining a team
         bool successfullyAdded = actualTeam.AddPlayer(player);
@@ -138,18 +133,23 @@ public abstract class Minigame : Photon.MonoBehaviour
     protected abstract void PlayerJoin(PhotonPlayer player, MinigameTeam team);
     
     /// <summary>
-    ///  Requests the MasterClient to remove this player from the corresponding team.
+    ///  Requests all other players remove <paramref name="player"/> from the corresponding team.
     /// </summary>
-    /// <param name="team"> The team to add this player to.
-    /// </param>
-    public void RemovePlayerFromTeam(MinigameTeam team)
+    private void RemovePlayer(PhotonPlayer player)
     {
-        // this.photonView.RpcAsMaster("RemovePlayerFromTeam", PhotonTargets.AllBufferedViaServer, PhotonNetwork.player, team);
-        this.photonView.RPC("RemovePlayerFromTeam", PhotonTargets.AllBufferedViaServer, PhotonNetwork.player, team);
+        this.photonView.RPC("RemovePlayer", PhotonTargets.AllBufferedViaServer, player);
+    }
+    
+    /// <summary>
+    ///  Requests all other players remove this client's player from the corresponding team.
+    /// </summary>
+    public void RemovePlayer()
+    {
+        this.RemovePlayer(PhotonNetwork.player);
     }
 
     /// <summary>
-    ///  RPC called by the MasterClient to remove the corresponding player from the corresponding team.
+    ///  RPC called by the client who wants to be removed from the corresponding team.
     /// </summary>
     /// <param name="player"> The player that's added to <paramref name="team"/>.
     /// </param>
@@ -158,17 +158,23 @@ public abstract class Minigame : Photon.MonoBehaviour
     /// <param name="info"> The info provided by the RPC sender (sender should always be the MasterClient).
     /// </param>
     [PunRPC]
-    private void RemovePlayerFromTeam(PhotonPlayer player, MinigameTeam team, PhotonMessageInfo info)
+    protected void RemovePlayer(PhotonPlayer player, PhotonMessageInfo info)
     {
         // Find the matching team
-        MinigameTeam actualTeam = this.Teams.Find(item => item.TeamID == team.TeamID);
+        MinigameTeam correspondingTeam = this.Teams.Find(team => team.Contains(player));
+        
+        if (correspondingTeam == null)
+        {
+            Debug.LogErrorFormat("Player with ID {0} was not found on any team to remove.", player);
+            return;
+        }
         
         // Remove the player from the team, if the player is the client, trigger the events associated with leaving the game
-        bool successfullyRemoved = actualTeam.RemovePlayer(player);
+        bool successfullyRemoved = correspondingTeam.RemovePlayer(player);
         if (player.Equals(PhotonNetwork.player))
         {
             if (successfullyRemoved)
-                { this.PlayerLeave(player); }
+                { this.PlayerLeave(); }
             else
                 { this.DisplayLeavingError(); }
         }
@@ -183,11 +189,11 @@ public abstract class Minigame : Photon.MonoBehaviour
     }
     
     /// <summary>
-    ///  What the player should do after leaving the game.
+    ///  What the client should do after leaving the game.
     /// </summary>
     /// <param name="player"> The player leaving.
     /// </param>
-    protected abstract void PlayerLeave(PhotonPlayer player);
+    protected abstract void PlayerLeave();
 
     /// <summary>
     ///  Acquires the team directly after <paramref name="team"/>. If <paramref name="team"/> is the last team, the team returned is the first team.
@@ -211,5 +217,16 @@ public abstract class Minigame : Photon.MonoBehaviour
     protected void AddTeam(MinigameTeam team)
     {
         this.Teams.Add(team);
+    }
+    
+    /*
+     *  PunBehaviour implements
+     */
+    
+    public override void OnPhotonPlayerDisconnected(PhotonPlayer otherPlayer)
+    {
+        // Only allow the master client to add the RPC removing the player to the buffer
+        if (PhotonNetwork.isMasterClient)
+            { this.RemovePlayer(otherPlayer); }
     }
 }

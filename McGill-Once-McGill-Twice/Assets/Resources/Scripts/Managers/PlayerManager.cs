@@ -55,8 +55,6 @@ public class PlayerManager : UnitySingleton<PlayerManager> {
         if (MainPlayer != null)
             { return; }
             
-        // string playerAssetPath = Instance.Malcolm.GetResourcesRelativePath();
-        // GameObject playerObject = PhotonNetwork.Instantiate(playerAssetPath, Instance.Malcolm.transform.position, Instance.Malcolm.transform.rotation, 0);
         GameObject playerObject = PhotonNetwork.Instantiate(GameConstants.ASSET_MALCOLM, Instance.Malcolm.transform.position, Instance.Malcolm.transform.rotation, 0);
         playerObject.tag = GameConstants.TAG_MAINPLAYER;
         MainPlayer = playerObject.GetComponent<Player>();

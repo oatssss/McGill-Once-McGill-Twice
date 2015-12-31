@@ -14,8 +14,9 @@ public class BeerPongMinigame : TurnBasedMinigame
     /// <summary>
     ///  Initializes the minigame with 2 teams each consisting of 2 players maximum.
     /// </summary>
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         this.TeamA = new MinigameTeam(0, 2);
         this.TeamB = new MinigameTeam(1, 2);
         this.AddTeam(this.TeamA);
@@ -48,7 +49,7 @@ public class BeerPongMinigame : TurnBasedMinigame
     /// <param name="info"> The info provided by the client who threw.
     /// </param>
     [PunRPC]
-    private void FinishThrow(PhotonMessageInfo info)
+    protected void FinishThrow(PhotonMessageInfo info)
     {
         throw new NotImplementedException();
     }
@@ -63,7 +64,7 @@ public class BeerPongMinigame : TurnBasedMinigame
         throw new NotImplementedException();
     }
 
-    protected override void PlayerLeave(PhotonPlayer player)
+    protected override void PlayerLeave()
     {
         throw new NotImplementedException();
     }

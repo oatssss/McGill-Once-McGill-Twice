@@ -12,7 +12,7 @@ public class PhotonManager : Photon.PunBehaviour {
  
     void OnGUI()
     {
-        GUILayout.Label(PhotonNetwork.connectionStateDetailed.ToString());
+        GUI.Label(new Rect(10, 10, 100, 20), PhotonNetwork.connectionStateDetailed.ToString());
     }
     
     public override void OnJoinedLobby()
@@ -29,14 +29,5 @@ public class PhotonManager : Photon.PunBehaviour {
     public override void OnJoinedRoom()
     {
         PlayerManager.Respawn();
-        // GameObject playerPrefab = Resources.Load("Prefabs/Characters/Malcolm/Malcolm") as GameObject;
-        /*GameObject player = PhotonNetwork.Instantiate("Prefabs/Characters/Malcolm/Malcolm", Vector3.zero, Quaternion.identity, 0);*/
-        // PhotonView playerView = player.GetComponent<PhotonView>();
-        // playerView.view
-        // GameObject monster = PhotonNetwork.Instantiate("monsterprefab", Vector3.zero, Quaternion.identity, 0);
-        // CharacterControl controller = monster.GetComponent<CharacterControl>();
-        // controller.enabled = true;
-        // CharacterCamera camera = monster.GetComponent<CharacterCamera>();
-        // camera.enabled = true;
     }
 }

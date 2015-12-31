@@ -70,6 +70,11 @@ public class MinigameTeam
         return true;
     }
     
+    public bool Contains(PhotonPlayer player)
+    {
+        return this.Players.Contains(player);
+    }
+    
     /// <summary>
     ///  Removes all the players and resets the score.
     /// </summary>
