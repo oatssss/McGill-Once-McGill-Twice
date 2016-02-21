@@ -1,2 +1,0 @@
-Assets/Resources/Characters/Malcolm/Malcolm.fbm/Malcom_Body_Normal.png
-Assets/Resources/Characters/Malcolm/Malcolm.fbx

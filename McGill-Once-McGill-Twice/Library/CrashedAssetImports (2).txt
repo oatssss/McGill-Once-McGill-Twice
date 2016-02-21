@@ -1,1 +1,0 @@
-Assets/Resources/Models/Characters/Andromeda/75-LOD/Andromeda_75-LOD.fbm/Andromeda_Body_Normal.png

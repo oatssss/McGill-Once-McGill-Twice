@@ -2,7 +2,6 @@
 using UnityEngine.UI;
 using System;
 using System.Collections;
-using UnityStandardAssets.CrossPlatformInput;
 
 public class GUIManager : UnitySingleton<GUIManager> {
     
@@ -25,10 +24,7 @@ public class GUIManager : UnitySingleton<GUIManager> {
 	// Update is called once per frame
 	void Update ()
     {
-	   	if (CrossPlatformInputManager.GetButtonDown("Submit"))
-        {
-            PlayerManager.Respawn();
-        }
+	   	
 	}
     
     void OnGUI()

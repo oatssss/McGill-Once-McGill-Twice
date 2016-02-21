@@ -1,2 +1,0 @@
-Assets/Resources/Models/Characters/Andromeda/Original/Andromeda.fbm/Andromeda_Body_Normal.png
-Assets/Resources/Models/Characters/Andromeda/Original/Andromeda.fbx

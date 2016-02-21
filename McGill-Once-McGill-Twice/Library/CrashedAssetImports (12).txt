@@ -1,2 +1,0 @@
-Assets/Resources/Models/Characters/Andromeda/75-LOD/Malcolm_75-LOD.fbm/Malcom_Top_Diffuse.png
-Assets/Resources/Models/Characters/Andromeda/75-LOD/Malcolm_75-LOD.fbx

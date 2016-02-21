@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System;
-using ExtensionMethods;
 
 public abstract class Minigame : Photon.PunBehaviour
 {
@@ -139,7 +138,7 @@ public abstract class Minigame : Photon.PunBehaviour
     {
         this.photonView.RPC("RemovePlayer", PhotonTargets.AllBufferedViaServer, player);
     }
-    
+
     /// <summary>
     ///  Requests all other players remove this client's player from the corresponding team.
     /// </summary>
