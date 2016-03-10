@@ -1,6 +1,6 @@
 ﻿using System;
 
-public  abstract class TurnBasedMinigame : Minigame
+public abstract class TurnBasedMinigame : Minigame
 {
     public MinigameTeam CurrentTurn;
 

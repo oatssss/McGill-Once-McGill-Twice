@@ -5,9 +5,12 @@ using System;
 public abstract class Minigame : Photon.PunBehaviour
 {
     private List<MinigameTeam> Teams;
-    [SerializeField] private Transform InstructionPrefab;
-    [SerializeField] private Transform GameInfoPrefab;
-    
+    // [SerializeField] private Transform InstructionPrefab;
+    // [SerializeField] private Transform GameInfoPrefab;
+
+    [SerializeField] private Menu InstructionMenu;
+    [SerializeField] private Menu InfoMenu;
+
     protected virtual void Awake()
     {
         this.Teams = new List<MinigameTeam>();
@@ -18,11 +21,7 @@ public abstract class Minigame : Photon.PunBehaviour
     /// </summary>
     public void DisplayInstructions()
     {
-        Transform prefab = Instantiate(InstructionPrefab);
-        prefab.SetParent(GUIManager.Instance.Canvas.transform, false);
-        
-        // TODO : Set focus, then Use animator to transition UI
-        throw new NotImplementedException();
+        this.InstructionMenu.Open();
     }
 
     /// <summary>
@@ -30,19 +29,15 @@ public abstract class Minigame : Photon.PunBehaviour
     /// </summary>
     public void DisplayGameInfo()
     {
-        Transform prefab = Instantiate(GameInfoPrefab);
-        prefab.SetParent(GUIManager.Instance.Canvas.transform, false);
-        
-        // TODO : Set focus, Use animator to transition and move focus
-        throw new NotImplementedException();
+        this.InfoMenu.Open();
     }
-    
+
     /// <summary>
     ///  Starts the game for all players on the teams.
     /// </summary>
     public void StartGame()
     {
-        // this.photonView.RpcAsMaster("StartGame", PhotonTargets.AllBufferedViaServer);
+        // TODO : Check if start is valid for number of members
         this.photonView.RPC("StartGame", PhotonTargets.AllBufferedViaServer);
     }
 
@@ -66,13 +61,13 @@ public abstract class Minigame : Photon.PunBehaviour
         {
             team.ResetTeam();
         }
-        
+
         // Give free-roam control back to the player
         PlayerManager.GetMainPlayer(true).ThirdPersonCharacter.EnableUserControls();
-        
+
         // Update UI for free-roam
         throw new NotImplementedException();
-        
+
         // Perform any supplemental events such as awarding achievements
         // this.EndGame();
     }
@@ -87,7 +82,7 @@ public abstract class Minigame : Photon.PunBehaviour
         // this.photonView.RpcAsMaster("AddPlayerToTeam", PhotonTargets.AllBufferedViaServer, PhotonNetwork.player, team);
         this.photonView.RPC("AddPlayerToTeam", PhotonTargets.AllBufferedViaServer, PhotonNetwork.player, team);
     }
-    
+
     /// <summary>
     ///  RPC called by the client wanting to be added to the corresponding team.
     /// </summary>
@@ -102,18 +97,18 @@ public abstract class Minigame : Photon.PunBehaviour
     {
         // Find the matching team
         MinigameTeam actualTeam = this.Teams.Find(listItem => listItem.Equals(team));
-        
+
         // Add the player to the team, if the player is the client, trigger the events associated with joining a team
         bool successfullyAdded = actualTeam.AddPlayer(player);
         if (player.Equals(PhotonNetwork.player))
         {
             if (successfullyAdded)
-                { this.PlayerJoin(player, actualTeam); }
+                { this.LocalPlayerJoin(player, actualTeam); }
             else
                 { this.DisplayJoiningError(); }
         }
     }
-    
+
     /// <summary>
     ///  Displays a UI alert that the team could not be joined.
     /// </summary>
@@ -121,7 +116,7 @@ public abstract class Minigame : Photon.PunBehaviour
     {
         throw new NotImplementedException();
     }
-    
+
     /// <summary>
     ///  What the player should do after successfully being added to a team.
     /// </summary>
@@ -129,8 +124,8 @@ public abstract class Minigame : Photon.PunBehaviour
     /// </param>
     /// <param name="team"> The team that <paramref name="player"/> is added to.
     /// </param>
-    protected abstract void PlayerJoin(PhotonPlayer player, MinigameTeam team);
-    
+    protected abstract void LocalPlayerJoin(PhotonPlayer player, MinigameTeam team);
+
     /// <summary>
     ///  Requests all other players remove <paramref name="player"/> from the corresponding team.
     /// </summary>
@@ -161,24 +156,24 @@ public abstract class Minigame : Photon.PunBehaviour
     {
         // Find the matching team
         MinigameTeam correspondingTeam = this.Teams.Find(team => team.Contains(player));
-        
+
         if (correspondingTeam == null)
         {
             Debug.LogErrorFormat("Player with ID {0} was not found on any team to remove.", player);
             return;
         }
-        
+
         // Remove the player from the team, if the player is the client, trigger the events associated with leaving the game
         bool successfullyRemoved = correspondingTeam.RemovePlayer(player);
         if (player.Equals(PhotonNetwork.player))
         {
             if (successfullyRemoved)
-                { this.PlayerLeave(); }
+                { this.LocalPlayerLeave(); }
             else
                 { this.DisplayLeavingError(); }
         }
     }
-    
+
     /// <summary>
     ///  Displays a UI alert notifying the user that they could not leave the game.
     /// </summary>
@@ -186,13 +181,13 @@ public abstract class Minigame : Photon.PunBehaviour
     {
         throw new NotImplementedException();
     }
-    
+
     /// <summary>
     ///  What the client should do after leaving the game.
     /// </summary>
     /// <param name="player"> The player leaving.
     /// </param>
-    protected abstract void PlayerLeave();
+    protected abstract void LocalPlayerLeave();
 
     /// <summary>
     ///  Acquires the team directly after <paramref name="team"/>. If <paramref name="team"/> is the last team, the team returned is the first team.
@@ -207,7 +202,7 @@ public abstract class Minigame : Photon.PunBehaviour
         int nextIndex = (index + 1) % this.Teams.Count;
         return this.Teams[nextIndex];
     }
-    
+
     /// <summary>
     ///  Adds <paramref name="team"/> to this minigame.
     /// </summary>
@@ -217,11 +212,11 @@ public abstract class Minigame : Photon.PunBehaviour
     {
         this.Teams.Add(team);
     }
-    
+
     /*
      *  PunBehaviour implements
      */
-    
+
     public override void OnPhotonPlayerDisconnected(PhotonPlayer otherPlayer)
     {
         // Only allow the master client to add the RPC removing the player to the buffer

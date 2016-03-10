@@ -2,11 +2,18 @@
 using UnityEngine.UI;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 public class GUIManager : UnitySingleton<GUIManager> {
-    
+
     public static readonly float FadeDuration = 0.5f;
-    
+
+    private bool GamePaused = false;
+    [SerializeField] private Menu PauseMenu;
+    private Menu CurrentMenu;
+    private Stack<Menu> History = new Stack<Menu>();
+    private enum TRANSITION { STACK, NOSTACK, CLOSE }
+
     private Coroutine Fading = null;
     [SerializeField] public Canvas Canvas;
     [SerializeField] private CanvasRenderer MinorFadeRenderer;
@@ -20,37 +27,31 @@ public class GUIManager : UnitySingleton<GUIManager> {
     {
 	   MajorFadeToClear(null);
 	}
-	
-	// Update is called once per frame
-	void Update ()
-    {
-	   	
-	}
-    
+
     void OnGUI()
     {
         if (PlayerManager.GetMainPlayer(false) != null)
             { UpdateStatusPoints(); }
     }
-    
+
     private static void UpdateStatusPoints()
     {
         string sleepPoints = float.NaN.ToString();
         string academicPoints = float.NaN.ToString();
         string socialPoints = float.NaN.ToString();
-        
+
         if (PlayerManager.GetMainPlayer(false) != null)
         {
             sleepPoints = PlayerManager.GetMainPlayer().SleepStatus.ToString();
             academicPoints = PlayerManager.GetMainPlayer().AcademicStatus.ToString();
             socialPoints = PlayerManager.GetMainPlayer().SocialStatus.ToString();
         }
-        
+
         Instance.SleepPoints.text = sleepPoints;
         Instance.AcademicPoints.text = academicPoints;
         Instance.SocialPoints.text = socialPoints;
     }
-    
+
     /// <summary>Cause the screen to fade to black but don't cover UI elements.</summary>
     /// <param name="callback">A callback method to run after the fade.</param>
     public static void MinorFadeToBlack(Action callback)
@@ -70,14 +71,14 @@ public class GUIManager : UnitySingleton<GUIManager> {
 
         Instance.Fading = Instance.StartCoroutine(DoFadeToClear(Instance.MinorFadeRenderer, callback));
     }
-    
+
     /// <summary>Cause the screen to fade to black, the fade covers everything including UI elements.</summary>
     /// <param name="callback">A callback method to run after the fade.</param>
     public static void MajorFadeToBlack(Action callback)
     {
         if (Instance.Fading != null)
             { Instance.StopCoroutine(Instance.Fading); }
-        
+
         //  Clear the minor fade overlay in case it's opaque
         Instance.MinorFadeRenderer.SetAlpha(0f);
 
@@ -90,7 +91,7 @@ public class GUIManager : UnitySingleton<GUIManager> {
     {
         if (Instance.Fading != null)
             { Instance.StopCoroutine(Instance.Fading); }
-            
+
         //  Clear the minor fade overlay in case it's opaque
         Instance.MinorFadeRenderer.SetAlpha(0f);
 
@@ -112,4 +113,109 @@ public class GUIManager : UnitySingleton<GUIManager> {
         if (callback != null)
             { callback(); }
     }
+
+    private void OpenMenu(Menu menu, TRANSITION transition)
+    {
+        menu.ResetTriggers();
+
+        if (Instance.CurrentMenu != null)
+        {
+            if (transition == TRANSITION.CLOSE)
+                { Instance.CurrentMenu.Close(); }
+            else
+            {
+                if (transition == TRANSITION.STACK)
+                    { Instance.History.Push(Instance.CurrentMenu); }
+
+                Instance.CurrentMenu.Hide();
+            }
+        }
+
+        Instance.CurrentMenu = menu;
+        Instance.CurrentMenu.Open();
+    }
+
+    public void OpenMenu(Menu menu, bool useHistory)
+    {
+        if (useHistory)
+            { Instance.OpenMenu(menu, TRANSITION.STACK); }
+        else
+            { Instance.OpenMenu(menu, TRANSITION.NOSTACK); }
+    }
+
+    public void OpenMenu(Menu menu)
+      {
+          Instance.OpenMenu(menu, true);
+      }
+
+      public void BackFromCurrentMenu()
+      {
+          Menu previous = (Instance.History.Count > 0) ? Instance.History.Pop() : null;
+
+          if (previous != null)
+          {
+              Instance.OpenMenu(previous, TRANSITION.CLOSE);
+          }
+          else
+          {
+              Instance.ResumeGame();
+          }
+      }
+
+      private void PauseTime()
+      {
+          Time.timeScale = 0f;
+      }
+
+      private void ResumeTime()
+      {
+          Time.timeScale = 1f;
+      }
+
+      public void PauseGame()
+      {
+          Instance.GamePaused = true;
+          Instance.PauseTime();
+          Instance.SetMenuFocus();
+          Instance.OpenMenu(GUIManager.Instance.PauseMenu);
+      }
+
+      public void ResumeGame()
+      {
+          Instance.SetGameFocus();
+          Instance.CurrentMenu.Close();
+          Instance.CurrentMenu = null;
+          foreach (Menu menu in Instance.History)
+              { menu.Reset(); }
+          Instance.History.Clear();
+          // Possibly wait for the close animation to finish
+          Instance.ResumeTime();
+          Instance.GamePaused = false;
+      }
+
+      public Menu PreviousMenu()
+      {
+          return Instance.History.Peek();
+      }
+
+      private void SetMenuFocus()
+      {
+          // TODO
+      }
+
+      private void SetGameFocus()
+      {
+          // TODO
+      }
+
+      void Update()
+      {
+          if (Input.GetButtonDown("Cancel"))
+          {
+              if (Instance.GamePaused)
+                  { Instance.ResumeGame(); }
+              else
+                  { Instance.PauseGame(); }
+          }
+      }
 }

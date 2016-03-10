@@ -10,7 +10,7 @@ public class BeerPongMinigame : TurnBasedMinigame
     [SerializeField] private List<PongCup> CupsA;
     [SerializeField] private List<PongCup> CupsB;
     [SerializeField] private List<PongCup> ScoredCups;
-    
+
     /// <summary>
     ///  Initializes the minigame with 2 teams each consisting of 2 players maximum.
     /// </summary>
@@ -59,12 +59,12 @@ public class BeerPongMinigame : TurnBasedMinigame
         throw new NotImplementedException();
     }
 
-    protected override void PlayerJoin(PhotonPlayer player, MinigameTeam team)
+    protected override void LocalPlayerJoin(PhotonPlayer player, MinigameTeam team)
     {
         throw new NotImplementedException();
     }
 
-    protected override void PlayerLeave()
+    protected override void LocalPlayerLeave()
     {
         throw new NotImplementedException();
     }
