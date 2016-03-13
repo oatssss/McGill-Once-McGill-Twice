@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 public class Menu : MonoBehaviour {
 
@@ -6,6 +7,7 @@ public class Menu : MonoBehaviour {
     private Animator Animator { get { return this.animator; } }
     [SerializeField] private CanvasGroup CanvasGroup;
     [SerializeField] private RectTransform RectTransform;
+    [SerializeField] private List<LiveMenuSegment> LiveSegments = new List<LiveMenuSegment>();
 
     public void Open()
     {
@@ -50,11 +52,19 @@ public class Menu : MonoBehaviour {
 
     protected virtual void Activate()
     {
+        foreach (LiveMenuSegment segment in this.LiveSegments)
+        {
+            segment.Activate();
+        }
         this.CanvasGroup.blocksRaycasts = this.CanvasGroup.interactable = true;
     }
 
     protected virtual void Deactivate()
     {
+        foreach (LiveMenuSegment segment in this.LiveSegments)
+        {
+            segment.Deactivate();
+        }
         this.CanvasGroup.blocksRaycasts = this.CanvasGroup.interactable = false;
     }
 }

@@ -1,19 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System;
+using ExtensionMethods;
 
 public abstract class Minigame : Photon.PunBehaviour
 {
-    private List<MinigameTeam> Teams;
-    // [SerializeField] private Transform InstructionPrefab;
-    // [SerializeField] private Transform GameInfoPrefab;
+    protected List<MinigameTeam> Teams = new List<MinigameTeam>();
 
     [SerializeField] private Menu InstructionMenu;
     [SerializeField] private Menu InfoMenu;
 
     protected virtual void Awake()
     {
-        this.Teams = new List<MinigameTeam>();
+
     }
 
     /// <summary>
@@ -47,29 +46,33 @@ public abstract class Minigame : Photon.PunBehaviour
     /// <param name="info"> The info provided by the RPC sender (sender should always be the MasterClient).
     /// </param>
     [PunRPC]
-    protected abstract void StartGame(PhotonMessageInfo info);
+    protected virtual void StartGame(PhotonMessageInfo info)
+    {
+        GUIManager.ShowMinigameUI(this);
+    }
 
     /// <summary>
-    ///  RPC called by a client in the same game trigerring teams to reset and allowing control over player again.
+    ///  RPC called when this game becomes empty.
     /// </summary>
     /// <param name="info"> The info provided by the RPC sender (sender should always be the MasterClient).
     /// </param>
     [PunRPC]
-    protected void EndGame(PhotonMessageInfo info)
+    protected void ResetGame(PhotonMessageInfo info)
     {
         foreach (MinigameTeam team in this.Teams)
         {
             team.ResetTeam();
         }
 
-        // Give free-roam control back to the player
-        PlayerManager.GetMainPlayer(true).ThirdPersonCharacter.EnableUserControls();
-
-        // Update UI for free-roam
-        throw new NotImplementedException();
+        // Remove buffered calls
+        this.photonView.ClearRpcBufferAsMasterClient();
 
         // Perform any supplemental events such as awarding achievements
-        // this.EndGame();
+    }
+
+    protected virtual void ReturnToMinigameLobby()
+    {
+        GUIManager.ShowMinigameJoinedUI(this);
     }
 
     /// <summary>
@@ -93,7 +96,7 @@ public abstract class Minigame : Photon.PunBehaviour
     /// <param name="info"> The info provided by the RPC sender (sender should always be the MasterClient).
     /// </param>
     [PunRPC]
-    protected void AddPlayerToTeam(PhotonPlayer player, MinigameTeam team, PhotonMessageInfo info)
+    protected virtual void AddPlayerToTeam(PhotonPlayer player, MinigameTeam team, PhotonMessageInfo info)
     {
         // Find the matching team
         MinigameTeam actualTeam = this.Teams.Find(listItem => listItem.Equals(team));
@@ -103,7 +106,7 @@ public abstract class Minigame : Photon.PunBehaviour
         if (player.Equals(PhotonNetwork.player))
         {
             if (successfullyAdded)
-                { this.LocalPlayerJoin(player, actualTeam); }
+                { this.LocalPlayerJoin(actualTeam); }
             else
                 { this.DisplayJoiningError(); }
         }
@@ -124,7 +127,12 @@ public abstract class Minigame : Photon.PunBehaviour
     /// </param>
     /// <param name="team"> The team that <paramref name="player"/> is added to.
     /// </param>
-    protected abstract void LocalPlayerJoin(PhotonPlayer player, MinigameTeam team);
+    protected virtual void LocalPlayerJoin(MinigameTeam team)
+    {
+        CameraManager.SetViewLookAngleMax(90f);
+        PlayerManager.DisableUserControls();
+        this.ReturnToMinigameLobby();
+    }
 
     /// <summary>
     ///  Requests all other players remove <paramref name="player"/> from the corresponding team.
@@ -165,6 +173,9 @@ public abstract class Minigame : Photon.PunBehaviour
 
         // Remove the player from the team, if the player is the client, trigger the events associated with leaving the game
         bool successfullyRemoved = correspondingTeam.RemovePlayer(player);
+        if (!player.Equals(PhotonNetwork.player) && successfullyRemoved)
+            { this.HandleRemotePlayerLeaveDetails(correspondingTeam, player); }
+
         if (player.Equals(PhotonNetwork.player))
         {
             if (successfullyRemoved)
@@ -173,6 +184,8 @@ public abstract class Minigame : Photon.PunBehaviour
                 { this.DisplayLeavingError(); }
         }
     }
+
+    protected abstract void HandleRemotePlayerLeaveDetails(MinigameTeam team, PhotonPlayer player);
 
     /// <summary>
     ///  Displays a UI alert notifying the user that they could not leave the game.
@@ -187,7 +200,12 @@ public abstract class Minigame : Photon.PunBehaviour
     /// </summary>
     /// <param name="player"> The player leaving.
     /// </param>
-    protected abstract void LocalPlayerLeave();
+    protected virtual void LocalPlayerLeave()
+    {
+        CameraManager.SetViewToPlayer();
+        PlayerManager.EnableUserControls();
+        GUIManager.ShowFreeRoamUI();
+    }
 
     /// <summary>
     ///  Acquires the team directly after <paramref name="team"/>. If <paramref name="team"/> is the last team, the team returned is the first team.
@@ -219,8 +237,10 @@ public abstract class Minigame : Photon.PunBehaviour
 
     public override void OnPhotonPlayerDisconnected(PhotonPlayer otherPlayer)
     {
+        MinigameTeam correspondingTeam = this.Teams.Find(team => team.Contains(otherPlayer));
+
         // Only allow the master client to add the RPC removing the player to the buffer
-        if (PhotonNetwork.isMasterClient)
+        if (correspondingTeam != null && PhotonNetwork.isMasterClient)
             { this.RemovePlayer(otherPlayer); }
     }
 }

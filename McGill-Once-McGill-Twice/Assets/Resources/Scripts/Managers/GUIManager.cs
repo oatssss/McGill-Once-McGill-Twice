@@ -4,7 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-public class GUIManager : UnitySingleton<GUIManager> {
+public class GUIManager : UnitySingletonPersistent<GUIManager> {
 
     public static readonly float FadeDuration = 0.5f;
 
@@ -114,6 +114,32 @@ public class GUIManager : UnitySingleton<GUIManager> {
             { callback(); }
     }
 
+    public static void ShowMinigameJoinedUI(Minigame minigame)
+    {
+        // Make use of a currentUI
+
+        throw new NotImplementedException();
+    }
+
+    public static void ShowMinigameUI(Minigame minigame)
+    {
+        // Make use of a currentUI
+
+        throw new NotImplementedException();
+    }
+
+    public static void ShowFreeRoamUI()
+    {
+        // Make use of a currentUI
+
+        throw new NotImplementedException();
+    }
+
+    public static void HideCurrentUI()
+    {
+        throw new NotImplementedException();
+    }
+
     private void OpenMenu(Menu menu, TRANSITION transition)
     {
         menu.ResetTriggers();
@@ -144,78 +170,83 @@ public class GUIManager : UnitySingleton<GUIManager> {
     }
 
     public void OpenMenu(Menu menu)
-      {
-          Instance.OpenMenu(menu, true);
-      }
+    {
+        Instance.OpenMenu(menu, true);
+    }
 
-      public void BackFromCurrentMenu()
-      {
-          Menu previous = (Instance.History.Count > 0) ? Instance.History.Pop() : null;
+    public void BackFromCurrentMenu()
+    {
+        Menu previous = (Instance.History.Count > 0) ? Instance.History.Pop() : null;
 
-          if (previous != null)
-          {
-              Instance.OpenMenu(previous, TRANSITION.CLOSE);
-          }
-          else
-          {
-              Instance.ResumeGame();
-          }
-      }
+        if (previous != null)
+        {
+            Instance.OpenMenu(previous, TRANSITION.CLOSE);
+        }
+        else
+        {
+            Instance.ResumeGame();
+        }
+    }
 
-      private void PauseTime()
-      {
-          Time.timeScale = 0f;
-      }
+    private void PauseTime()
+    {
+        Time.timeScale = 0f;
+    }
 
-      private void ResumeTime()
-      {
-          Time.timeScale = 1f;
-      }
+    private void ResumeTime()
+    {
+        Time.timeScale = 1f;
+    }
 
-      public void PauseGame()
-      {
-          Instance.GamePaused = true;
-          Instance.PauseTime();
-          Instance.SetMenuFocus();
-          Instance.OpenMenu(GUIManager.Instance.PauseMenu);
-      }
+    public void PauseGame()
+    {
+        Instance.GamePaused = true;
+        Instance.PauseTime();
+        Instance.SetMenuFocus();
+        Instance.OpenMenu(GUIManager.Instance.PauseMenu);
+    }
 
-      public void ResumeGame()
-      {
-          Instance.SetGameFocus();
-          Instance.CurrentMenu.Close();
-          Instance.CurrentMenu = null;
-          foreach (Menu menu in Instance.History)
-              { menu.Reset(); }
-          Instance.History.Clear();
-          // Possibly wait for the close animation to finish
-          Instance.ResumeTime();
-          Instance.GamePaused = false;
-      }
+    public void ResumeGame()
+    {
+        Instance.SetGameFocus();
+        Instance.CurrentMenu.Close();
+        Instance.CurrentMenu = null;
+        foreach (Menu menu in Instance.History)
+            { menu.Reset(); }
+        Instance.History.Clear();
+        // Possibly wait for the close animation to finish
+        Instance.ResumeTime();
+        Instance.GamePaused = false;
+    }
 
-      public Menu PreviousMenu()
-      {
-          return Instance.History.Peek();
-      }
+    public Menu PreviousMenu()
+    {
+        return Instance.History.Peek();
+    }
 
-      private void SetMenuFocus()
-      {
-          // TODO
-      }
+    private void SetMenuFocus()
+    {
+        // TODO
+    }
 
-      private void SetGameFocus()
-      {
-          // TODO
-      }
+    private void SetGameFocus()
+    {
+        // TODO
+    }
 
-      void Update()
-      {
-          if (Input.GetButtonDown("Cancel"))
-          {
-              if (Instance.GamePaused)
-                  { Instance.ResumeGame(); }
-              else
-                  { Instance.PauseGame(); }
-          }
-      }
+    void Update()
+    {
+        if (CustomInputManager.GetButtonDown("Cancel"))
+        {
+            if (Instance.GamePaused)
+                { Instance.ResumeGame(); }
+            else
+                { Instance.PauseGame(); }
+        }
+    }
+
+    /*
+     * UI Prefab References
+     */
+     public PlayerListItem PlayerListItemPrefab;
 }

@@ -59,12 +59,17 @@ public class BeerPongMinigame : TurnBasedMinigame
         throw new NotImplementedException();
     }
 
-    protected override void LocalPlayerJoin(PhotonPlayer player, MinigameTeam team)
+    protected override void LocalPlayerJoin(MinigameTeam team)
     {
         throw new NotImplementedException();
     }
 
     protected override void LocalPlayerLeave()
+    {
+        throw new NotImplementedException();
+    }
+
+    protected override void HandleRemotePlayerLeaveDetails(MinigameTeam team, PhotonPlayer player)
     {
         throw new NotImplementedException();
     }
