@@ -15,7 +15,7 @@ public class Menu : MonoBehaviour {
         this.Animator.SetTrigger("Open");
     }
 
-    public void Close()
+    public virtual void Close()
     {
         this.Deactivate();
         this.Animator.SetTrigger("Close");

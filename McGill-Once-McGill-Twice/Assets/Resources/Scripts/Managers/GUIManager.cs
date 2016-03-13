@@ -238,7 +238,7 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
     {
         if (CustomInputManager.GetButtonDown("Cancel"))
         {
-            if (Instance.GamePaused)
+            if (Instance.CurrentMenu != null)
                 { Instance.ResumeGame(); }
             else
                 { Instance.PauseGame(); }

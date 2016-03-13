@@ -4,12 +4,12 @@ public abstract class LiveMenuSegment : MonoBehaviour {
 
     public void Activate()
     {
-        this.enabled = true;
+        // this.gameObject.SetActive(true);
     }
 
     public void Deactivate()
     {
-        this.enabled = false;
+        // this.gameObject.SetActive(false);
     }
 
     void Update()

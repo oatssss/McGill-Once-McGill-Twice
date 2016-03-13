@@ -7,10 +7,12 @@ public class MinigameTeamSegment : LiveMenuSegment
     public MinigameTeam Team { get; set; }
     [SerializeField] private RectTransform Content;
     [SerializeField] private Button JoinButton;
-    [ReadOnly] private List<PlayerListItem> ListItems = new List<PlayerListItem>();
+    [SerializeField] private List<PlayerListItem> ListItems = new List<PlayerListItem>();
 
     public override void UpdateSegment()
     {
+        Debug.LogFormat("Team Max Size: {0}, List Items Count {1}", this.Team.MaxSize, this.ListItems.Count);
+
         // Ensure the list view has enough slots to show a full size team
         while (this.Team != null && this.Team.MaxSize > this.ListItems.Count)
         {
@@ -26,7 +28,7 @@ public class MinigameTeamSegment : LiveMenuSegment
         }
 
         // Occupy a corresponding slot for each player on the team
-        IEnumerator<PlayerListItem> listItems = this.ListItems.GetEnumerator();
+        List<PlayerListItem>.Enumerator listItems = this.ListItems.GetEnumerator();
         foreach (PhotonPlayer player in this.Team)
         {
             PlayerListItem current = listItems.Current;

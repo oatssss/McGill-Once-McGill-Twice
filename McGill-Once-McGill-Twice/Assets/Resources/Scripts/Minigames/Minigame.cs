@@ -6,9 +6,10 @@ using ExtensionMethods;
 public abstract class Minigame : Photon.PunBehaviour
 {
     protected List<MinigameTeam> Teams = new List<MinigameTeam>();
-
     [SerializeField] private Menu InstructionMenu;
     [SerializeField] private Menu InfoMenu;
+    [SerializeField] private MinigameZone Zone;
+    [ReadOnly] public bool LocalPlayerJoined;
 
     protected virtual void Awake()
     {
@@ -20,7 +21,8 @@ public abstract class Minigame : Photon.PunBehaviour
     /// </summary>
     public void DisplayInstructions()
     {
-        this.InstructionMenu.Open();
+        // this.InstructionMenu.Open();
+        GUIManager.Instance.OpenMenu(this.InstructionMenu);
     }
 
     /// <summary>
@@ -28,7 +30,8 @@ public abstract class Minigame : Photon.PunBehaviour
     /// </summary>
     public void DisplayGameInfo()
     {
-        this.InfoMenu.Open();
+        // this.InfoMenu.Open();
+        GUIManager.Instance.OpenMenu(this.InfoMenu);
     }
 
     /// <summary>
@@ -129,6 +132,7 @@ public abstract class Minigame : Photon.PunBehaviour
     /// </param>
     protected virtual void LocalPlayerJoin(MinigameTeam team)
     {
+        this.LocalPlayerJoined = true;
         CameraManager.SetViewLookAngleMax(90f);
         PlayerManager.DisableUserControls();
         this.ReturnToMinigameLobby();
@@ -202,9 +206,21 @@ public abstract class Minigame : Photon.PunBehaviour
     /// </param>
     protected virtual void LocalPlayerLeave()
     {
+        this.LocalPlayerJoined = false;
         CameraManager.SetViewToPlayer();
         PlayerManager.EnableUserControls();
         GUIManager.ShowFreeRoamUI();
+        this.EnableZone();
+    }
+
+    public void EnableZone()
+    {
+        this.Zone.EnableZone();
+    }
+
+    public void DisableZone()
+    {
+        this.Zone.DisableZone();
     }
 
     /// <summary>

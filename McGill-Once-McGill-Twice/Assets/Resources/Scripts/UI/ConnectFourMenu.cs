@@ -1,17 +1,18 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
-using System;
 
-public class ConnectFourMenu : Menu
+public class ConnectFourMenu : MinigameInfoMenu
 {
-    [SerializeField] private ConnectFourMinigame Minigame;
-    [SerializeField] private MinigameTeamSegment SegmentTeamA;
-    [SerializeField] private MinigameTeamSegment SegmentTeamB;
+    private ConnectFourMinigame Minigame
+    {
+        get { return (ConnectFourMinigame) this.GenericMinigame; }
+    }
+    [SerializeField] private MinigameTeamSegment SegmentTeamBlue;
+    [SerializeField] private MinigameTeamSegment SegmentTeamRed;
 
     protected override void Activate()
     {
-        this.SegmentTeamA.Team = this.Minigame.TeamA;
-        this.SegmentTeamB.Team = this.Minigame.TeamB;
+        this.SegmentTeamBlue.Team = this.Minigame.TeamA;
+        this.SegmentTeamRed.Team = this.Minigame.TeamB;
         base.Activate();
     }
 }
