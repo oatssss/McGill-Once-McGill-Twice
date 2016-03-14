@@ -4,15 +4,16 @@ using System.Collections.Generic;
 
 public class MinigameTeamSegment : LiveMenuSegment
 {
-    public MinigameTeam Team { get; set; }
+    public MinigameTeamContainer TeamContainer;
+    [SerializeField] private Minigame Minigame;
     [SerializeField] private RectTransform Content;
-    [SerializeField] private Button JoinButton;
+    [SerializeField] private Button Button;
     [SerializeField] private List<PlayerListItem> ListItems = new List<PlayerListItem>();
 
     public override void UpdateSegment()
     {
         // Ensure the list view has enough slots to show a full size team
-        while (this.Team != null && this.Team.MaxSize > this.ListItems.Count)
+        while (this.TeamContainer.Team.MaxSize > this.ListItems.Count)
         {
             PlayerListItem newListItem = Instantiate<PlayerListItem>(GUIManager.Instance.PlayerListItemPrefab);
             newListItem.SetUnoccupied();
@@ -21,22 +22,20 @@ public class MinigameTeamSegment : LiveMenuSegment
         }
 
         // Ensure the list view doesn't have any extra slots on top of a full team
-        while (this.Team != null && this.Team.MaxSize < this.ListItems.Count)
+        while (this.TeamContainer.Team.MaxSize < this.ListItems.Count)
         {
             this.ListItems.RemoveAt(0);
         }
 
         // Occupy a corresponding slot for each player on the team
         List<PlayerListItem>.Enumerator listItems = this.ListItems.GetEnumerator();
-        listItems.MoveNext();
-        foreach (PhotonPlayer player in this.Team)
+        foreach (PhotonPlayer player in this.TeamContainer.Team)
         {
+            listItems.MoveNext();
             PlayerListItem current = listItems.Current;
 
             if (!player.Equals(current.Player))
                 { current.SetOccupied(player); }
-
-            listItems.MoveNext();
         }
 
         // Any remaining slots should be set to unoccupied
@@ -47,9 +46,40 @@ public class MinigameTeamSegment : LiveMenuSegment
         }
 
         // Update the status of the join button
-        if (this.Team.Size == this.Team.MaxSize)
-            { this.JoinButton.interactable = false; }
+        if (this.TeamContainer.Team.Contains(PhotonNetwork.player))
+        {
+            this.ShowLeaveTeamButton();
+        }
+        else if (this.TeamContainer.Team.Size == this.TeamContainer.Team.MaxSize)
+        {
+            this.ShowFullTeamButton();
+        }
         else
-            { this.JoinButton.interactable = true; }
+        {
+            this.ShowJoinTeamButton();
+        }
+    }
+
+    private void ShowLeaveTeamButton()
+    {
+        this.Button.onClick.RemoveAllListeners();
+        this.Button.onClick.AddListener(() => this.Minigame.RemovePlayer());
+        this.Button.GetComponentInChildren<Text>().text = "Leave team";
+        this.Button.interactable = true;
+    }
+
+    private void ShowJoinTeamButton()
+    {
+        this.Button.onClick.RemoveAllListeners();
+        this.Button.onClick.AddListener(() => this.Minigame.AddPlayerToTeam(this.TeamContainer));
+        this.Button.GetComponentInChildren<Text>().text = "Join team";
+        this.Button.interactable = true;
+    }
+
+    private void ShowFullTeamButton()
+    {
+        this.Button.onClick.RemoveAllListeners();
+        this.Button.GetComponentInChildren<Text>().text = "Full team";
+        this.Button.interactable = false;
     }
 }

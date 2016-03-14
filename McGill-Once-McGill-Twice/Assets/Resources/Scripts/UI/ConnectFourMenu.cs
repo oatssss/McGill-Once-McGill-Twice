@@ -11,8 +11,8 @@ public class ConnectFourMenu : MinigameInfoMenu
 
     protected override void Activate()
     {
-        this.SegmentTeamBlue.Team = this.Minigame.TeamContainerA.Team;
-        this.SegmentTeamRed.Team = this.Minigame.TeamContainerB.Team;
+        this.SegmentTeamBlue.TeamContainer = this.Minigame.TeamContainerA;
+        this.SegmentTeamRed.TeamContainer = this.Minigame.TeamContainerB;
         base.Activate();
     }
 }

@@ -255,8 +255,8 @@ public abstract class Minigame : Photon.PunBehaviour
     {
         MinigameTeam correspondingTeam = this.TeamContainers.Find(teamContainer => teamContainer.Team.Contains(otherPlayer)).Team;
 
-        // Only allow the master client to add the RPC removing the player to the buffer
-        if (correspondingTeam != null && PhotonNetwork.isMasterClient)
-            { this.RemovePlayer(otherPlayer); }
+        // If the disconnecting player belonged to a team, remove them from that team
+        if (correspondingTeam != null)
+            { this.RemovePlayer(otherPlayer, null); }
     }
 }
