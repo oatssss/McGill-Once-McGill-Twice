@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using System.Collections.Generic;
 
-public class MinigameTeamSegment : LiveMenuSegment
+public class MinigameTeamView : LiveMenuView
 {
     public MinigameTeamContainer TeamContainer;
     [SerializeField] private Minigame Minigame;

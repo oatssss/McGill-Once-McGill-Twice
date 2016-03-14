@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System;
 
 public class ConnectFourMinigame : Minigame
@@ -31,13 +30,6 @@ public class ConnectFourMinigame : Minigame
             CameraManager.SetViewForwardImmediate(directionB);
             CameraManager.SetPivotRadius(directionB.magnitude);
         }
-    }
-
-    protected override void LocalPlayerLeave()
-    {
-        // Probably don't need to override
-
-        base.LocalPlayerLeave();
     }
 
     protected override void HandleRemotePlayerLeaveDetails(MinigameTeam team, PhotonPlayer player)

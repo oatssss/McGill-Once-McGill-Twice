@@ -1,6 +1,6 @@
-﻿using UnityEngine;
+using UnityEngine;
 
-public abstract class LiveMenuSegment : MonoBehaviour {
+public abstract class LiveMenuView : MonoBehaviour {
 
     public void Activate()
     {

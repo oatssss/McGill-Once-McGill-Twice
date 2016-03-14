@@ -7,7 +7,7 @@ public class Menu : MonoBehaviour {
     private Animator Animator { get { return this.animator; } }
     [SerializeField] private CanvasGroup CanvasGroup;
     [SerializeField] private RectTransform RectTransform;
-    [SerializeField] private List<LiveMenuSegment> LiveSegments = new List<LiveMenuSegment>();
+    [SerializeField] private List<LiveMenuView> LiveSegments = new List<LiveMenuView>();
 
     public void Open()
     {
@@ -52,7 +52,7 @@ public class Menu : MonoBehaviour {
 
     protected virtual void Activate()
     {
-        foreach (LiveMenuSegment segment in this.LiveSegments)
+        foreach (LiveMenuView segment in this.LiveSegments)
         {
             segment.Activate();
         }
@@ -61,7 +61,7 @@ public class Menu : MonoBehaviour {
 
     protected virtual void Deactivate()
     {
-        foreach (LiveMenuSegment segment in this.LiveSegments)
+        foreach (LiveMenuView segment in this.LiveSegments)
         {
             segment.Deactivate();
         }

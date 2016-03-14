@@ -6,13 +6,13 @@ public class ConnectFourMenu : MinigameInfoMenu
     {
         get { return (ConnectFourMinigame) this.GenericMinigame; }
     }
-    [SerializeField] private MinigameTeamSegment SegmentTeamBlue;
-    [SerializeField] private MinigameTeamSegment SegmentTeamRed;
+    [SerializeField] private MinigameTeamView TeamBlueView;
+    [SerializeField] private MinigameTeamView TeamRedView;
 
     protected override void Activate()
     {
-        this.SegmentTeamBlue.TeamContainer = this.Minigame.TeamContainerA;
-        this.SegmentTeamRed.TeamContainer = this.Minigame.TeamContainerB;
+        this.TeamBlueView.TeamContainer = this.Minigame.TeamContainerA;
+        this.TeamRedView.TeamContainer = this.Minigame.TeamContainerB;
         base.Activate();
     }
 }
