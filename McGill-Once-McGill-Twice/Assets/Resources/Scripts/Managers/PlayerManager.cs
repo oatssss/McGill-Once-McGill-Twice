@@ -6,6 +6,7 @@ public class PlayerManager : UnitySingletonPersistent<PlayerManager> {
     [SerializeField] private GameObject Andromeda;
     // public static bool PlayerIsAlive { get; private set; }
     [SerializeField] private static Player MainPlayer;
+    [ReadOnly] public bool JoinedTeam;
 
     /// <summary>Retrieves the Player script for the client's player.</summary>
     /// <param name="logErrors">Should an error be logged if retrieving the player is unsuccessful?</param>

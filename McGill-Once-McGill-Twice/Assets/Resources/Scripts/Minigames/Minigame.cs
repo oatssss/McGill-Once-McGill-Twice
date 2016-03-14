@@ -67,8 +67,9 @@ public abstract class Minigame : Photon.PunBehaviour
             team.Team.ResetTeam();
         }
 
-        // Remove buffered calls
-        this.photonView.ClearRpcBufferAsMasterClient();
+        // Remove buffered RPCs
+        if (PhotonNetwork.isMasterClient)
+            { PhotonNetwork.RemoveRPCs(this.photonView); }
 
         // Perform any supplemental events such as awarding achievements
     }
@@ -101,6 +102,10 @@ public abstract class Minigame : Photon.PunBehaviour
     [PunRPC]
     protected virtual void AddPlayerToTeam(PhotonPlayer player, MinigameTeam team, PhotonMessageInfo info)
     {
+        // A recently disconnected player may still have an AddPlayer RPC buffered for new joining players, in this case, the new joining player will be trying to add a null player
+        if (player == null)
+            { return; }
+
         // Find the matching team
         MinigameTeam actualTeam = this.TeamContainers.Find(container => container.Team.Equals(team)).Team;
 
@@ -132,6 +137,7 @@ public abstract class Minigame : Photon.PunBehaviour
     /// </param>
     protected virtual void LocalPlayerJoin(MinigameTeam team)
     {
+        PlayerManager.Instance.JoinedTeam = true;
         this.LocalPlayerJoined = true;
         CameraManager.SetViewLookAngleMax(90f);
         PlayerManager.DisableUserControls();
@@ -166,6 +172,10 @@ public abstract class Minigame : Photon.PunBehaviour
     [PunRPC]
     protected void RemovePlayer(PhotonPlayer player, PhotonMessageInfo info)
     {
+        // A recently disconnected player may still have a RemovePlayer RPC buffered for new joining players, in this case, the new joining player will be trying to remove a null player
+        if (player == null)
+            { return; }
+
         // Find the matching team
         MinigameTeam correspondingTeam = this.TeamContainers.Find(container => container.Team.Contains(player)).Team;
 
@@ -187,6 +197,17 @@ public abstract class Minigame : Photon.PunBehaviour
             else
                 { this.DisplayLeavingError(); }
         }
+
+        // The master client checks to see if the game is empty, if so, reset this game
+        if (PhotonNetwork.isMasterClient)
+        {
+            int players = 0;
+            foreach (MinigameTeamContainer container in this.TeamContainers)
+                { players += container.Team.Size; }
+
+            if (players == 0)
+                { this.photonView.RPC("ResetGame", PhotonTargets.AllViaServer); }
+        }
     }
 
     protected abstract void HandleRemotePlayerLeaveDetails(MinigameTeam team, PhotonPlayer player);
@@ -206,6 +227,7 @@ public abstract class Minigame : Photon.PunBehaviour
     /// </param>
     protected virtual void LocalPlayerLeave()
     {
+        PlayerManager.Instance.JoinedTeam = false;
         this.LocalPlayerJoined = false;
         CameraManager.SetViewToPlayer();
         PlayerManager.EnableUserControls();
@@ -257,6 +279,8 @@ public abstract class Minigame : Photon.PunBehaviour
 
         // If the disconnecting player belonged to a team, remove them from that team
         if (correspondingTeam != null)
-            { this.RemovePlayer(otherPlayer, null); }
+        {
+            this.RemovePlayer(otherPlayer, null);
+        }
     }
 }

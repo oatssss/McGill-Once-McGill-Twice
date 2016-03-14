@@ -73,7 +73,11 @@ public class MinigameTeamSegment : LiveMenuSegment
         this.Button.onClick.RemoveAllListeners();
         this.Button.onClick.AddListener(() => this.Minigame.AddPlayerToTeam(this.TeamContainer));
         this.Button.GetComponentInChildren<Text>().text = "Join team";
-        this.Button.interactable = true;
+
+        if (PlayerManager.Instance.JoinedTeam)
+            { this.Button.interactable = false; }
+        else
+            { this.Button.interactable = true; }
     }
 
     private void ShowFullTeamButton()
