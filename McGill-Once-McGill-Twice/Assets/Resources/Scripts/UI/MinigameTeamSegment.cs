@@ -11,14 +11,13 @@ public class MinigameTeamSegment : LiveMenuSegment
 
     public override void UpdateSegment()
     {
-        Debug.LogFormat("Team Max Size: {0}, List Items Count {1}", this.Team.MaxSize, this.ListItems.Count);
-
         // Ensure the list view has enough slots to show a full size team
         while (this.Team != null && this.Team.MaxSize > this.ListItems.Count)
         {
             PlayerListItem newListItem = Instantiate<PlayerListItem>(GUIManager.Instance.PlayerListItemPrefab);
             newListItem.SetUnoccupied();
             newListItem.gameObject.transform.SetParent(this.Content, false);
+            this.ListItems.Add(newListItem);
         }
 
         // Ensure the list view doesn't have any extra slots on top of a full team
@@ -29,6 +28,7 @@ public class MinigameTeamSegment : LiveMenuSegment
 
         // Occupy a corresponding slot for each player on the team
         List<PlayerListItem>.Enumerator listItems = this.ListItems.GetEnumerator();
+        listItems.MoveNext();
         foreach (PhotonPlayer player in this.Team)
         {
             PlayerListItem current = listItems.Current;

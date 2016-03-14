@@ -5,7 +5,7 @@ using ExtensionMethods;
 
 public abstract class Minigame : Photon.PunBehaviour
 {
-    protected List<MinigameTeam> Teams = new List<MinigameTeam>();
+    [SerializeField] private List<MinigameTeamContainer> TeamContainers = new List<MinigameTeamContainer>();
     [SerializeField] private Menu InstructionMenu;
     [SerializeField] private Menu InfoMenu;
     [SerializeField] private MinigameZone Zone;
@@ -62,9 +62,9 @@ public abstract class Minigame : Photon.PunBehaviour
     [PunRPC]
     protected void ResetGame(PhotonMessageInfo info)
     {
-        foreach (MinigameTeam team in this.Teams)
+        foreach (MinigameTeamContainer team in this.TeamContainers)
         {
-            team.ResetTeam();
+            team.Team.ResetTeam();
         }
 
         // Remove buffered calls
@@ -83,10 +83,10 @@ public abstract class Minigame : Photon.PunBehaviour
     /// </summary>
     /// <param name="team"> The team to add this player to.
     /// </param>
-    public void AddPlayerToTeam(MinigameTeam team)
+    public void AddPlayerToTeam(MinigameTeamContainer teamContainer)
     {
         // this.photonView.RpcAsMaster("AddPlayerToTeam", PhotonTargets.AllBufferedViaServer, PhotonNetwork.player, team);
-        this.photonView.RPC("AddPlayerToTeam", PhotonTargets.AllBufferedViaServer, PhotonNetwork.player, team);
+        this.photonView.RPC("AddPlayerToTeam", PhotonTargets.AllBufferedViaServer, PhotonNetwork.player, teamContainer.Team);
     }
 
     /// <summary>
@@ -102,7 +102,7 @@ public abstract class Minigame : Photon.PunBehaviour
     protected virtual void AddPlayerToTeam(PhotonPlayer player, MinigameTeam team, PhotonMessageInfo info)
     {
         // Find the matching team
-        MinigameTeam actualTeam = this.Teams.Find(listItem => listItem.Equals(team));
+        MinigameTeam actualTeam = this.TeamContainers.Find(container => container.Team.Equals(team)).Team;
 
         // Add the player to the team, if the player is the client, trigger the events associated with joining a team
         bool successfullyAdded = actualTeam.AddPlayer(player);
@@ -167,7 +167,7 @@ public abstract class Minigame : Photon.PunBehaviour
     protected void RemovePlayer(PhotonPlayer player, PhotonMessageInfo info)
     {
         // Find the matching team
-        MinigameTeam correspondingTeam = this.Teams.Find(team => team.Contains(player));
+        MinigameTeam correspondingTeam = this.TeamContainers.Find(container => container.Team.Contains(player)).Team;
 
         if (correspondingTeam == null)
         {
@@ -230,11 +230,11 @@ public abstract class Minigame : Photon.PunBehaviour
     /// </param>
     /// <returns> The team directly after <paramref name="team"/>.
     /// </returns>
-    protected MinigameTeam GetTeamAfter(MinigameTeam team)
+    protected MinigameTeamContainer GetTeamContainerAfter(MinigameTeamContainer teamContainer)
     {
-        int index = this.Teams.IndexOf(team);
-        int nextIndex = (index + 1) % this.Teams.Count;
-        return this.Teams[nextIndex];
+        int index = this.TeamContainers.IndexOf(teamContainer);
+        int nextIndex = (index + 1) % this.TeamContainers.Count;
+        return this.TeamContainers[nextIndex];
     }
 
     /// <summary>
@@ -242,9 +242,9 @@ public abstract class Minigame : Photon.PunBehaviour
     /// </summary>
     /// <param name="team"> The team to add to this minigame.
     /// </param>
-    protected void AddTeam(MinigameTeam team)
+    protected void AddTeamContainer(MinigameTeamContainer teamContainer)
     {
-        this.Teams.Add(team);
+        this.TeamContainers.Add(teamContainer);
     }
 
     /*
@@ -253,7 +253,7 @@ public abstract class Minigame : Photon.PunBehaviour
 
     public override void OnPhotonPlayerDisconnected(PhotonPlayer otherPlayer)
     {
-        MinigameTeam correspondingTeam = this.Teams.Find(team => team.Contains(otherPlayer));
+        MinigameTeam correspondingTeam = this.TeamContainers.Find(teamContainer => teamContainer.Team.Contains(otherPlayer)).Team;
 
         // Only allow the master client to add the RPC removing the player to the buffer
         if (correspondingTeam != null && PhotonNetwork.isMasterClient)

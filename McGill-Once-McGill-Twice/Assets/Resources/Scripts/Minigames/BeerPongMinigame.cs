@@ -4,24 +4,12 @@ using System;
 
 public class BeerPongMinigame : TurnBasedMinigame
 {
-    [SerializeField] private MinigameTeam TeamA;
-    [SerializeField] private MinigameTeam TeamB;
+    public MinigameTeam TeamA;
+    public MinigameTeam TeamB;
     [SerializeField] private List<PongBall> PongBalls;
     [SerializeField] private List<PongCup> CupsA;
     [SerializeField] private List<PongCup> CupsB;
     [SerializeField] private List<PongCup> ScoredCups;
-
-    /// <summary>
-    ///  Initializes the minigame with 2 teams each consisting of 2 players maximum.
-    /// </summary>
-    protected override void Awake()
-    {
-        base.Awake();
-        this.TeamA = new MinigameTeam(0, 2);
-        this.TeamB = new MinigameTeam(1, 2);
-        this.AddTeam(this.TeamA);
-        this.AddTeam(this.TeamB);
-    }
 
     /*
     /// <summary>

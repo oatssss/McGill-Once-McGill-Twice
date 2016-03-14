@@ -4,20 +4,11 @@ using System;
 
 public class ConnectFourMinigame : Minigame
 {
-    public MinigameTeam TeamA { get; protected set; }
-    public MinigameTeam TeamB  { get; protected set; }
+    public MinigameTeamContainer TeamContainerA;
+    public MinigameTeamContainer TeamContainerB;
     [SerializeField] private GameObject PlayerViewA;
     [SerializeField] private GameObject PlayerViewB;
     [SerializeField] private ConnectFourBoard Board;
-
-    protected override void Awake()
-    {
-        base.Awake();
-        this.TeamA = new MinigameTeam(0, 1);
-        this.TeamB = new MinigameTeam(1, 1);
-        this.AddTeam(this.TeamA);
-        this.AddTeam(this.TeamB);
-    }
 
     protected override void LocalPlayerJoin(MinigameTeam team)
     {
@@ -27,7 +18,7 @@ public class ConnectFourMinigame : Minigame
         CameraManager.SetViewPosition(this.Board.transform.position);
 
         // Join as A
-        if (team == this.TeamA)
+        if (team == this.TeamContainerA.Team)
         {
             Vector3 directionA = this.Board.transform.position - this.PlayerViewA.transform.position;
             CameraManager.SetViewForwardImmediate(directionA);
@@ -69,6 +60,6 @@ public class ConnectFourMinigame : Minigame
         base.StartGame(info);
         // Pure start, checks and UI have already been handled
 
-        this.Board.StartGame(this.TeamA.GetEnumerator().Current, this.TeamB.GetEnumerator().Current);
+        this.Board.StartGame(this.TeamContainerA.Team.GetEnumerator().Current, this.TeamContainerB.Team.GetEnumerator().Current);
     }
 }

@@ -5,18 +5,19 @@ using System.Collections;
 
 public class MinigameTeam
 {
+    private static int NumOccupiedIDs;
     public readonly int TeamID;
     private List<PhotonPlayer> Players;
 
     public int Score;
 
     public readonly int MaxSize;
-    
+
     /// <summary>
     ///  The current number of players on the team.
     /// </summary>
     public int Size { get { return this.Players.Count; } }
-    
+
     public MinigameTeam(int teamID, int maxSize)
     {
         this.TeamID = teamID;
@@ -24,9 +25,19 @@ public class MinigameTeam
         this.MaxSize = maxSize;
     }
 
+    public MinigameTeam(int maxSize) : this(FreeID(), maxSize)
+    {
+        // Already calls other constructor with FreeID() as teamID
+    }
+
+    public static int FreeID()
+    {
+        return NumOccupiedIDs++;
+    }
+
     /// <summary>
     ///  An operation that does...
-    /// 
+    ///
     ///  @param firstParam a description of this parameter
     /// </summary>
     /// <param name="player"> The player to be added.
@@ -45,14 +56,14 @@ public class MinigameTeam
             Debug.LogErrorFormat("Can't add {0} to team {1}, player is already in the team.", player, this);
             return false;
         }
-        
+
         this.Players.Add(player);
         return true;
     }
 
     /// <summary>
     ///  An operation that does...
-    /// 
+    ///
     ///  @param firstParam a description of this parameter
     /// </summary>
     /// <param name="player">
@@ -66,15 +77,15 @@ public class MinigameTeam
             Debug.LogErrorFormat("Can't remove {0} from team {1}, player is not in team.", player, this);
             return false;
         }
-        
+
         return true;
     }
-    
+
     public bool Contains(PhotonPlayer player)
     {
         return this.Players.Contains(player);
     }
-    
+
     /// <summary>
     ///  Removes all the players and resets the score.
     /// </summary>
@@ -88,7 +99,7 @@ public class MinigameTeam
     {
         return this.Players.GetEnumerator();
     }
-    
+
     /// <summary>
     /// Makes MinigameTeam comparable
     /// </summary>
