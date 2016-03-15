@@ -11,15 +11,6 @@ public abstract class TransitionTeleport : MonoBehaviour {
     [SerializeField] private Transform ExitSpawn;
     [SerializeField] private Transform ExitWalkTarget;
     [SerializeField] private Transform ExitCameraPosition;
-    // [SerializeField] private string CollisionTag;
-
-    /*
-    void Awake()
-    {
-        TriggerCollider = GetComponent<Collider>();
-        TriggerCollider.isTrigger = true;
-    }
-    */
 
     /*
 	void OnTriggerEnter(Collider other)

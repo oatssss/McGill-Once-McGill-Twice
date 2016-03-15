@@ -3,11 +3,18 @@ using UnityEngine.UI;
 
 public class Tooltip : MonoBehaviour {
 
-    private static float FadeDuration = 0.5f;
+    private static float FadeDuration = 0.25f;
     public Text Text;
     [SerializeField] private CanvasRenderer Renderer;
     [ReadOnly] [SerializeField] private float Duration;
     private Coroutine Fading;
+    private bool FadingIn = false;
+    private bool FadingOut = false;
+
+    void Awake()
+    {
+        this.Renderer.SetAlpha(0);
+    }
 
     public void Show(string tooltip, float duration)
     {
@@ -17,11 +24,13 @@ public class Tooltip : MonoBehaviour {
         this.Duration = duration;
         this.Text.text = tooltip;
 
-        if (this.Fading != null)
+        if (!this.FadingIn)
         {
-            StopCoroutine(this.Fading);
-            this.Fading = null;
-            this.Renderer.SetAlpha(1f);
+            if (this.Fading != null)
+                { StopCoroutine(this.Fading); }
+
+            this.Fading = StartCoroutine(FadeUtility.UIAlphaFade(this.Renderer, this.Renderer.GetAlpha(), 1f, FadeDuration, FadeUtility.EaseType.InOut, () => { this.Fading = null; this.FadingIn = false; }));
+            this.FadingIn = true;
         }
     }
 
@@ -37,7 +46,7 @@ public class Tooltip : MonoBehaviour {
 
         if (this.Duration <= 0 && this.Fading == null)
         {
-            this.Fading = StartCoroutine(FadeUtility.UIAlphaFade(this.Renderer, 1f, 0f, FadeDuration, FadeUtility.EaseType.InOut, this.Remove));
+            this.Fading = StartCoroutine(FadeUtility.UIAlphaFade(this.Renderer, this.Renderer.GetAlpha(), 0f, FadeDuration, FadeUtility.EaseType.InOut, () => { this.Fading = null; this.Remove(); }));
         }
     }
 }

@@ -62,7 +62,7 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
         if (Instance.Fading != null)
             { Instance.StopCoroutine(Instance.Fading); }
 
-        Instance.Fading = Instance.StartCoroutine(FadeUtility.UIAlphaFade(Instance.MinorFadeRenderer, 0f, 1f, FadeDuration, FadeUtility.EaseType.InOut, callback));
+        Instance.Fading = Instance.StartCoroutine(FadeUtility.UIAlphaFade(Instance.MinorFadeRenderer, Instance.MinorFadeRenderer.GetAlpha(), 1f, FadeDuration, FadeUtility.EaseType.InOut, () => { Instance.Fading = null; callback(); }));
     }
 
     /// <summary>Cause the screen to fade to clear but don't cover UI elements.</summary>
@@ -72,7 +72,7 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
         if (Instance.Fading != null)
             { Instance.StopCoroutine(Instance.Fading); }
 
-        Instance.Fading = Instance.StartCoroutine(FadeUtility.UIAlphaFade(Instance.MinorFadeRenderer, 1f, 0f, FadeDuration, FadeUtility.EaseType.InOut, callback));
+        Instance.Fading = Instance.StartCoroutine(FadeUtility.UIAlphaFade(Instance.MinorFadeRenderer, Instance.MinorFadeRenderer.GetAlpha(), 0f, FadeDuration, FadeUtility.EaseType.InOut, () => { Instance.Fading = null; callback(); }));
     }
 
     /// <summary>Cause the screen to fade to black, the fade covers everything including UI elements.</summary>
@@ -85,7 +85,7 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
         //  Clear the minor fade overlay in case it's opaque
         Instance.MinorFadeRenderer.SetAlpha(0f);
 
-        Instance.Fading = Instance.StartCoroutine(FadeUtility.UIAlphaFade(Instance.MajorFadeRenderer, 0f, 1f, FadeDuration, FadeUtility.EaseType.InOut, callback));
+        Instance.Fading = Instance.StartCoroutine(FadeUtility.UIAlphaFade(Instance.MajorFadeRenderer, Instance.MajorFadeRenderer.GetAlpha(), 1f, FadeDuration, FadeUtility.EaseType.InOut, () => { Instance.Fading = null; callback(); }));
     }
 
     /// <summary>Cause the screen to fade to clear, the fade covers everything including UI elements.</summary>
@@ -98,7 +98,7 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
         //  Clear the minor fade overlay in case it's opaque
         Instance.MinorFadeRenderer.SetAlpha(0f);
 
-        Instance.Fading = Instance.StartCoroutine(FadeUtility.UIAlphaFade(Instance.MajorFadeRenderer, 1f, 0f, FadeDuration, FadeUtility.EaseType.InOut, callback));
+        Instance.Fading = Instance.StartCoroutine(FadeUtility.UIAlphaFade(Instance.MajorFadeRenderer, Instance.MajorFadeRenderer.GetAlpha(), 0f, FadeDuration, FadeUtility.EaseType.InOut, () => { Instance.Fading = null; callback(); }));
     }
 
     /*

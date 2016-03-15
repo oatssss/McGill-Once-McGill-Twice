@@ -2,7 +2,7 @@
 using System.Collections;
 
 public class GameConstants {
-    
+
     //  Static list of tags
     public static readonly string TAG_UNTAGGED = "Untagged";
     public static readonly string TAG_RESPAWN = "Respawn";
@@ -14,9 +14,12 @@ public class GameConstants {
     public static readonly string TAG_CAMERARIG = "CamerRig";
     public static readonly string TAG_GROUND = "Ground";
     public static readonly string TAG_OBSTACLE = "Obstacle";
-    
+
+    // Static list of layers
+    public static readonly string LAYER_PLAYER = "Player";
+
     //  Static list of assets
     public static readonly string ASSET_MALCOLM = "Prefabs/Characters/Malcolm/Malcolm";
-    
+
     public static readonly float TRANSITION_SPEED_MULTIPLIER = 7f;
 }

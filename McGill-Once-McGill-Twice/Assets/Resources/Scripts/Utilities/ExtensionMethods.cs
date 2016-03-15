@@ -6,6 +6,15 @@ namespace ExtensionMethods
 {
     public static class ExtensionMethods
     {
+        public static void SetLayerRecursively(this GameObject obj, int layer)
+        {
+            obj.layer = layer;
+
+            foreach (Transform child in obj.transform) {
+                child.gameObject.SetLayerRecursively(layer);
+            }
+        }
+
         public static Quaternion RotationDeltaTo(this Quaternion rotation, Quaternion targetRotation)
         {
             return Quaternion.Inverse(rotation) * targetRotation;

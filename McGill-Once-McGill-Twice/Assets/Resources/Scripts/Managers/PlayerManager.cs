@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using ExtensionMethods;
 
 public class PlayerManager : UnitySingletonPersistent<PlayerManager> {
 
@@ -58,6 +59,7 @@ public class PlayerManager : UnitySingletonPersistent<PlayerManager> {
 
         GameObject playerObject = PhotonNetwork.Instantiate(GameConstants.ASSET_MALCOLM, Instance.Malcolm.transform.position, Instance.Malcolm.transform.rotation, 0);
         playerObject.tag = GameConstants.TAG_MAINPLAYER;
+        playerObject.SetLayerRecursively(LayerMask.NameToLayer(GameConstants.LAYER_PLAYER));
         // playerObject.AddComponent<ThirdPersonUserControlCustom>();
         // playerObject.AddComponent<AICharacterControlCustom>();
 
