@@ -5,55 +5,53 @@ using System;
 
 public abstract class TransitionTeleport : MonoBehaviour {
 
-    private Collider TriggerCollider;
+    [SerializeField] private Collider TriggerCollider;
     [SerializeField] private Transform EntranceWalkTarget;
     [SerializeField] private Transform EntranceCameraPosition;
     [SerializeField] private Transform ExitSpawn;
     [SerializeField] private Transform ExitWalkTarget;
     [SerializeField] private Transform ExitCameraPosition;
-    [SerializeField] private string CollisionTag;
+    // [SerializeField] private string CollisionTag;
 
+    /*
     void Awake()
     {
         TriggerCollider = GetComponent<Collider>();
         TriggerCollider.isTrigger = true;
     }
+    */
 
+    /*
 	void OnTriggerEnter(Collider other)
     {
         if (other.tag == CollisionTag)
 	       { DisplayTutorialMessage(); }
 	}
+    */
 
     void OnTriggerStay(Collider other)
     {
-        if ((CustomInputManager.GetButton("Interact Main") && (other.tag == CollisionTag) && (other.GetComponent<ThirdPersonCharacterCustom>() != null)))
+        GUIManager.Instance.ShowTooltip("Press E to enter.", 0);
+
+        if (CustomInputManager.GetButton("Interact Main"))
         {
             Transition(other.GetComponent<ThirdPersonCharacterCustom>());
         }
     }
 
+    /*
     void OnTriggerExit(Collider other)
     {
         if (other.tag == CollisionTag)
 	       { RemoveTutorialMessage(); }
 	}
-
-    private void DisplayTutorialMessage()
-    {
-        Debug.LogWarningFormat("{0} has an incomplete implementation for DisplayTutorialMessage", this);
-    }
-
-    private void RemoveTutorialMessage()
-    {
-        Debug.LogWarningFormat("{0} has an incomplete implementation for RemoveTutorialMessage", this);
-    }
+    */
 
     public void Transition(ThirdPersonCharacterCustom player)
     {
         //  Prevent the player from spamming the interact key
         TriggerCollider.enabled = false;
-        this.OnTriggerExit(player.GetComponent<Collider>());
+        // this.OnTriggerExit(player.GetComponent<Collider>());
 
         //  Do any preparation the specific teleport transition needs to do
         PrepareTransition(player);

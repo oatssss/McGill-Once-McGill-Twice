@@ -1,30 +1,17 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 using ExtensionMethods;
 
 public class ConnectFourBoard : Photon.PunBehaviour {
 
-    private class ConnectFourSlot : MonoBehaviour
-    {
-        public enum Colour { Red, Blue, Empty }
-        private Colour status;
-        public Colour Status
-        {
-            get { return this.status; }
-            set
-            {
-                this.status = value;
-                // TODO : Set chip colour
-            }
-        }
-    }
-
+    [SerializeField] private Minigame ParentMinigame;
     private bool LocalSideB = false;
     private PhotonPlayer RemotePlayer;
     private ConnectFourSlot.Colour LocalColour;
     private ConnectFourSlot.Colour RemoteColour;
     private static int Rows = 6;
     private static int Columns = 7;
-    private ConnectFourSlot[,] Slots = new ConnectFourSlot[Columns,Rows];    // [col,row] following standard cartesian coordinates from side A (+x=right+x,+y=up)
+    private ConnectFourSlot[,] Slots = new ConnectFourSlot[Columns,Rows];    // [col,row] following standard cartesian coordinates from side A (+x=right,+y=up)
     [SerializeField] ConnectFourSlot[] Col0 = new ConnectFourSlot[Rows];
     [SerializeField] ConnectFourSlot[] Col1 = new ConnectFourSlot[Rows];
     [SerializeField] ConnectFourSlot[] Col2 = new ConnectFourSlot[Rows];
@@ -34,13 +21,13 @@ public class ConnectFourBoard : Photon.PunBehaviour {
     [SerializeField] ConnectFourSlot[] Col6 = new ConnectFourSlot[Rows];
     [SerializeField] ConnectFourSlot[] SelectorsA = new ConnectFourSlot[Columns];
     [SerializeField] ConnectFourSlot[] SelectorsB = new ConnectFourSlot[Columns];
-    [SerializeField] ConnectFourSlot[] LocalSelectors;
-    [SerializeField] ConnectFourSlot[] RemoteSelectors;
+    [ReadOnly] [SerializeField] ConnectFourSlot[] LocalSelectors;
+    [ReadOnly] [SerializeField] ConnectFourSlot[] RemoteSelectors;
 
     private int LocalSelectorIndex = 0;
 
-    public bool Playing = false;
-    private bool PlayerTurn = false;
+    [ReadOnly] public bool Playing = false;
+    [ReadOnly] [SerializeField] private bool PlayerTurn = false;
 
     void Awake()
     {
@@ -65,7 +52,7 @@ public class ConnectFourBoard : Photon.PunBehaviour {
         }
     }
 
-    public void StartGame(PhotonPlayer A, PhotonPlayer B)
+    public void StartPlaying(PhotonPlayer A, PhotonPlayer B)
     {
         this.photonView.ClearRpcBufferAsMasterClient();    // We don't care about instructions in the buffer for previous games at this point
         this.photonView.RPC("ResetBoard", PhotonTargets.AllBufferedViaServer);
@@ -98,7 +85,7 @@ public class ConnectFourBoard : Photon.PunBehaviour {
         this.LocalSelectors[this.LocalSelectorIndex].Status = this.LocalColour;
     }
 
-    public void EndGame()
+    public void StopPlaying()
     {
         this.Playing = false;
     }
@@ -167,7 +154,7 @@ public class ConnectFourBoard : Photon.PunBehaviour {
     {
         if (!this.PlayerTurn)
         {
-            // TODO : Alert not this player's turn
+            GUIManager.Instance.ShowTooltip("It's not your turn!");
             return;
         }
 
@@ -191,13 +178,12 @@ public class ConnectFourBoard : Photon.PunBehaviour {
         if (slotRow == Rows)    // No empty slots in this column
         {
             Debug.Log("Selected column is full!");
-            // TODO : Alert full column to player
+            GUIManager.Instance.ShowTooltip("There are no free slots in that column.");
             return;
         }
 
         this.PlayerTurn = false;
         this.photonView.RPC("ModifySlot", PhotonTargets.AllBufferedViaServer, slotColumn, slotRow, this.LocalColour);
-        this.photonView.RPC("SetTurn", this.RemotePlayer);
     }
 
     [PunRPC]
@@ -205,42 +191,200 @@ public class ConnectFourBoard : Photon.PunBehaviour {
     {
         this.Slots[slotColumn,slotRow].Status = colour;
 
-        // TODO : Check if someone won with four in a row (use new slot as starting point)
+        // Don't check for wins if the slot was set to empty
+        if (colour == ConnectFourSlot.Colour.Empty)
+            { return; }
+
+        bool winner = false;
+        winner |= this.CheckHorizontalWin(slotColumn, slotRow, colour);
+        winner |= this.CheckVerticalWin(slotColumn, slotRow, colour);
+        winner |= this.CheckTLBRDiagonalWin(slotColumn, slotRow, colour);
+        winner |= this.CheckTRBLDiagonalWin(slotColumn, slotRow, colour);
+
+        if (winner && this.Playing)
+        {
+            this.StopPlaying();
+            this.ParentMinigame.RequireInteractForLobby();
+        }
+        else if (colour != this.LocalColour)
+        {
+            this.PlayerTurn = true;
+        }
+    }
+
+    private bool CheckHorizontalWin(int slotColumn, int slotRow, ConnectFourSlot.Colour colour)
+    {
+        List<ConnectFourSlot> winningSlots = new List<ConnectFourSlot> { this.Slots[slotColumn,slotRow] };
+
+        int col = slotColumn + 1;   // Check towards the right first
+        ConnectFourSlot slot = col < Columns ? this.Slots[col,slotRow] : null;
+        while (slot != null && slot.Status == colour)
+        {
+            winningSlots.Add(slot);
+            col++;
+        }
+
+        col = slotColumn - 1;       // Check towards the left now
+        slot = col >= 0 ? this.Slots[col,slotRow] : null;
+        while (slot != null && slot.Status == colour)
+        {
+            winningSlots.Add(slot);
+            col--;
+        }
+
+        if (winningSlots.Count >= 4)
+        {
+            this.HighlightWinningSlots(winningSlots);
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool CheckVerticalWin(int slotColumn, int slotRow, ConnectFourSlot.Colour colour)
+    {
+        List<ConnectFourSlot> winningSlots = new List<ConnectFourSlot> { this.Slots[slotColumn,slotRow] };
+
+        int row = slotRow + 1;   // Check towards the top first
+        ConnectFourSlot slot = row < Rows ? this.Slots[slotColumn,row] : null;
+        while (slot != null && slot.Status == colour)
+        {
+            winningSlots.Add(slot);
+            row++;
+        }
+
+        row = slotRow - 1;       // Check towards the bottom now
+        slot = row >= 0 ? this.Slots[slotColumn,row] : null;
+        while (slot != null && slot.Status == colour)
+        {
+            winningSlots.Add(slot);
+            row--;
+        }
+
+        if (winningSlots.Count >= 4)
+        {
+            this.HighlightWinningSlots(winningSlots);
+            return true;
+        }
+
+        return false;
+    }
+
+    // TLBR = Top Left Bottom Right
+    private bool CheckTLBRDiagonalWin(int slotColumn, int slotRow, ConnectFourSlot.Colour colour)
+    {
+        List<ConnectFourSlot> winningSlots = new List<ConnectFourSlot> { this.Slots[slotColumn,slotRow] };
+
+        int row = slotRow + 1;   // Check towards the top left first
+        int col = slotColumn - 1;
+        ConnectFourSlot slot = (row < Rows && col >= 0) ? this.Slots[col,row] : null;
+        while (slot != null && slot.Status == colour)
+        {
+            winningSlots.Add(slot);
+            row++;
+            col--;
+        }
+
+        row = slotRow - 1;       // Check towards the bottom right now
+        col = slotColumn + 1;
+        slot = (row >= 0 && col < Columns) ? this.Slots[col,row] : null;
+        while (slot != null && slot.Status == colour)
+        {
+            winningSlots.Add(slot);
+            row--;
+            col++;
+        }
+
+        if (winningSlots.Count >= 4)
+        {
+            this.HighlightWinningSlots(winningSlots);
+            return true;
+        }
+
+        return false;
+    }
+
+    // TRBL = Top Right Bottom Left
+    private bool CheckTRBLDiagonalWin(int slotColumn, int slotRow, ConnectFourSlot.Colour colour)
+    {
+        List<ConnectFourSlot> winningSlots = new List<ConnectFourSlot> { this.Slots[slotColumn,slotRow] };
+
+        int row = slotRow + 1;   // Check towards the top right first
+        int col = slotColumn + 1;
+        ConnectFourSlot slot = (row < Rows && col < Columns) ? this.Slots[col,row] : null;
+        while (slot != null && slot.Status == colour)
+        {
+            winningSlots.Add(slot);
+            row++;
+            col++;
+        }
+
+        row = slotRow - 1;       // Check towards the bottom left now
+        col = slotColumn - 1;
+        slot = (row >= 0 && col >= 0) ? this.Slots[col,row] : null;
+        while (slot != null && slot.Status == colour)
+        {
+            winningSlots.Add(slot);
+            row--;
+            col--;
+        }
+
+        if (winningSlots.Count >= 4)
+        {
+            // Only highlight for players in the game
+            if (this.Playing)
+                { this.HighlightWinningSlots(winningSlots); }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private void HighlightWinningSlots(List<ConnectFourSlot> slots)
+    {
+        foreach (ConnectFourSlot slot in slots)
+        {
+            slot.Highlight(true);
+        }
     }
 
     [PunRPC]
     private void ResetBoard(PhotonMessageInfo info)
     {
         foreach (ConnectFourSlot slot in this.Slots)
-        { slot.Status = ConnectFourSlot.Colour.Empty; }
+        {
+            slot.Status = ConnectFourSlot.Colour.Empty;
+            slot.Highlight(false);
+        }
 
         foreach (ConnectFourSlot selector in this.LocalSelectors)
-        { selector.Status = ConnectFourSlot.Colour.Empty; }
+        {
+            selector.Status = ConnectFourSlot.Colour.Empty;
+            selector.Highlight(false);
+        }
 
         foreach (ConnectFourSlot selector in this.RemoteSelectors)
-        { selector.Status = ConnectFourSlot.Colour.Empty; }
+        {
+            selector.Status = ConnectFourSlot.Colour.Empty;
+            selector.Highlight(false);
+        }
 
         this.LocalSelectorIndex = 0;
-    }
-
-    [PunRPC]
-    private void SetTurn()
-    {
-        this.PlayerTurn = true;
     }
 
     void Update()
     {
         if (!this.Playing)
-        { return; }
+            { return; }
 
         if (CustomInputManager.GetButtonDown("Left"))
-        { this.MoveSelectionLeft(); }
+            { this.MoveSelectionLeft(); }
 
         else if (CustomInputManager.GetButtonDown("Right"))
-        { this.MoveSelectionRight(); }
+            { this.MoveSelectionRight(); }
 
         else if (CustomInputManager.GetButtonDown("Submit"))
-        { this.AcceptMove(); }
+            { this.AcceptMove(); }
     }
 }

@@ -36,8 +36,8 @@ public class ConnectFourMinigame : Minigame
     {
         if (this.Board.Playing)
         {
-            this.Board.EndGame();
-            this.ReturnToMinigameLobby();
+            this.Board.StopPlaying();
+            // this.ReturnToMinigameLobby();    // Return to lobby after early game termination is dismissed
             this.DisplayEarlyGameTermination(team, player);
         }
     }
@@ -52,6 +52,6 @@ public class ConnectFourMinigame : Minigame
         base.StartGame(info);
         // Pure start, checks and UI have already been handled
 
-        this.Board.StartGame(this.TeamContainerA.Team.GetEnumerator().Current, this.TeamContainerB.Team.GetEnumerator().Current);
+        this.Board.StartPlaying(this.TeamContainerA.Team.GetEnumerator().Current, this.TeamContainerB.Team.GetEnumerator().Current);
     }
 }

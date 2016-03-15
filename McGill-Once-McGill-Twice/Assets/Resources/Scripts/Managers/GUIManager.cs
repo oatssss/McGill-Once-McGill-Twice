@@ -22,6 +22,9 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
     [SerializeField] private Text AcademicPoints;
     [SerializeField] private Text SocialPoints;
 
+    [SerializeField] private float TooltipDuration = 5f;
+    [ReadOnly] public List<Tooltip> Tooltips = new List<Tooltip>();
+
 	// Use this for initialization
 	void OnEnable ()
     {
@@ -59,7 +62,7 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
         if (Instance.Fading != null)
             { Instance.StopCoroutine(Instance.Fading); }
 
-        Instance.Fading = Instance.StartCoroutine(DoFadeToBlack(Instance.MinorFadeRenderer, callback));
+        Instance.Fading = Instance.StartCoroutine(FadeUtility.UIAlphaFade(Instance.MinorFadeRenderer, 0f, 1f, FadeDuration, FadeUtility.EaseType.InOut, callback));
     }
 
     /// <summary>Cause the screen to fade to clear but don't cover UI elements.</summary>
@@ -69,7 +72,7 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
         if (Instance.Fading != null)
             { Instance.StopCoroutine(Instance.Fading); }
 
-        Instance.Fading = Instance.StartCoroutine(DoFadeToClear(Instance.MinorFadeRenderer, callback));
+        Instance.Fading = Instance.StartCoroutine(FadeUtility.UIAlphaFade(Instance.MinorFadeRenderer, 1f, 0f, FadeDuration, FadeUtility.EaseType.InOut, callback));
     }
 
     /// <summary>Cause the screen to fade to black, the fade covers everything including UI elements.</summary>
@@ -82,7 +85,7 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
         //  Clear the minor fade overlay in case it's opaque
         Instance.MinorFadeRenderer.SetAlpha(0f);
 
-        Instance.Fading = Instance.StartCoroutine(DoFadeToBlack(Instance.MajorFadeRenderer, callback));
+        Instance.Fading = Instance.StartCoroutine(FadeUtility.UIAlphaFade(Instance.MajorFadeRenderer, 0f, 1f, FadeDuration, FadeUtility.EaseType.InOut, callback));
     }
 
     /// <summary>Cause the screen to fade to clear, the fade covers everything including UI elements.</summary>
@@ -95,9 +98,10 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
         //  Clear the minor fade overlay in case it's opaque
         Instance.MinorFadeRenderer.SetAlpha(0f);
 
-        Instance.Fading = Instance.StartCoroutine(DoFadeToClear(Instance.MajorFadeRenderer, callback));
+        Instance.Fading = Instance.StartCoroutine(FadeUtility.UIAlphaFade(Instance.MajorFadeRenderer, 1f, 0f, FadeDuration, FadeUtility.EaseType.InOut, callback));
     }
 
+    /*
     private static IEnumerator DoFadeToBlack(CanvasRenderer renderer, Action callback)
     {
         yield return Instance.StartCoroutine(FadeUtility.UIAlphaFade(renderer, 0f, 1f, FadeDuration, FadeUtility.EaseType.InOut));
@@ -113,6 +117,7 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
         if (callback != null)
             { callback(); }
     }
+    */
 
     public static void ShowMinigameJoinedUI(Minigame minigame)
     {
@@ -188,6 +193,25 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
         }
     }
 
+    public void ShowTooltip(string tooltip, float duration)
+    {
+        Tooltip duplicate = this.Tooltips.Find(tip => tip.Text.text.Equals(tooltip));
+
+        if (duplicate)
+            { duplicate.Show(tooltip, duration); }
+        else
+        {
+            Tooltip newTip = Instantiate<Tooltip>(this.TooltipPrefab);
+            newTip.transform.SetParent(this.Canvas.transform, false);
+            newTip.Show(tooltip, duration);
+        }
+    }
+
+    public void ShowTooltip(string tooltip)
+    {
+        this.ShowTooltip(tooltip, this.TooltipDuration);
+    }
+
     private void PauseTime()
     {
         Time.timeScale = 0f;
@@ -249,4 +273,5 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
      * UI Prefab References
      */
      public PlayerListItem PlayerListItemPrefab;
+     public Tooltip TooltipPrefab;
 }

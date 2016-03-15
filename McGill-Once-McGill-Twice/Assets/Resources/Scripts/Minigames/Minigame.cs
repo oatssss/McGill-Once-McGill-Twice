@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using ExtensionMethods;
 
 public abstract class Minigame : Photon.PunBehaviour
@@ -10,6 +11,7 @@ public abstract class Minigame : Photon.PunBehaviour
     [SerializeField] private Menu InfoMenu;
     [SerializeField] private MinigameZone Zone;
     [ReadOnly] public bool LocalPlayerJoined;
+    private Coroutine InteractForLobbyReturn = null;
 
     protected virtual void Awake()
     {
@@ -74,8 +76,30 @@ public abstract class Minigame : Photon.PunBehaviour
         // Perform any supplemental events such as awarding achievements
     }
 
+    public void RequireInteractForLobby()
+    {
+        this.InteractForLobbyReturn = StartCoroutine(InteractToReturnToLobby());
+    }
+
+    private IEnumerator InteractToReturnToLobby()
+    {
+        while (!CustomInputManager.GetButtonDown("Interact Main"))
+        {
+            // Show UI requesting interact to return to lobby
+            GUIManager.Instance.ShowTooltip("Press E to continue.", 0f);
+            yield return null;
+        }
+
+        this.ReturnToMinigameLobby();
+    }
+
     protected virtual void ReturnToMinigameLobby()
     {
+        if (this.InteractForLobbyReturn != null)
+        {
+            StopCoroutine(this.InteractForLobbyReturn);
+            this.InteractForLobbyReturn = null;
+        }
         GUIManager.ShowMinigameJoinedUI(this);
     }
 
