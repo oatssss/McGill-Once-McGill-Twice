@@ -149,7 +149,7 @@ public abstract class Minigame : Photon.PunBehaviour
     /// </summary>
     protected void DisplayJoiningError()
     {
-        throw new NotImplementedException();
+        GUIManager.Instance.ShowTooltip("An error occurred, unable to join.");
     }
 
     /// <summary>
@@ -241,7 +241,7 @@ public abstract class Minigame : Photon.PunBehaviour
     /// </summary>
     protected void DisplayLeavingError()
     {
-        throw new NotImplementedException();
+        GUIManager.Instance.ShowTooltip("An error occurred, unable to leave.");
     }
 
     /// <summary>

@@ -2,19 +2,15 @@ using UnityEngine;
 
 public abstract class LiveMenuView : MonoBehaviour {
 
-    public void Activate()
+    public virtual void Activate()
     {
         this.gameObject.SetActive(true);
     }
 
-    public void Deactivate()
+    public virtual void Deactivate()
     {
         this.gameObject.SetActive(false);
     }
 
-    void Update()
-    {
-        UpdateSegment();
-    }
-    public abstract void UpdateSegment();
+    protected abstract void Update();
 }

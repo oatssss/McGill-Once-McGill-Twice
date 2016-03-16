@@ -10,7 +10,6 @@ public class PhotonSingletonPersistent<T> : Photon.MonoBehaviour
 				instance = FindObjectOfType<T> ();
 				if (instance == null) {
 					GameObject obj = new GameObject ();
-					obj.hideFlags = HideFlags.HideAndDontSave;
 					instance = obj.AddComponent<T> ();
 				}
 			}

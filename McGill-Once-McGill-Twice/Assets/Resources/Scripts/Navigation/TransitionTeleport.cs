@@ -5,6 +5,7 @@ using System;
 
 public abstract class TransitionTeleport : MonoBehaviour {
 
+    [SerializeField] protected string TooltipText;
     [SerializeField] private Collider TriggerCollider;
     [SerializeField] private Transform EntranceWalkTarget;
     [SerializeField] private Transform EntranceCameraPosition;
@@ -22,7 +23,7 @@ public abstract class TransitionTeleport : MonoBehaviour {
 
     void OnTriggerStay(Collider other)
     {
-        GUIManager.Instance.ShowTooltip("Press E to enter.", 0);
+        GUIManager.Instance.ShowTooltip(this.TooltipText, 0);
 
         if (CustomInputManager.GetButton("Interact Main"))
         {

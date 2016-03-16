@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class PhotonSingleton<T> : Photon.MonoBehaviour
+public class PUNSingleton<T> : Photon.PunBehaviour
 	where T : Component
 {
 	private static T instance;

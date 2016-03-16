@@ -9,26 +9,40 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
     public static readonly float FadeDuration = 0.5f;
 
     private bool GamePaused = false;
-    [SerializeField] private Menu PauseMenu;
     private Menu CurrentMenu;
     private Stack<Menu> History = new Stack<Menu>();
     private enum TRANSITION { STACK, NOSTACK, CLOSE }
 
     private Coroutine Fading = null;
+
+    [Header("UI Elements")]
     [SerializeField] public Canvas Canvas;
     [SerializeField] private CanvasRenderer MinorFadeRenderer;
     [SerializeField] private CanvasRenderer MajorFadeRenderer;
+    [Space(10)]
+
+    [Header("Menus")]
+    [ReadOnly] [SerializeField] private bool InGame;
+    [SerializeField] private Menu PauseMenu;
+    public Menu StartupMenu;
+    [Space(10)]
+
+    [Header("Stats")]
+    [SerializeField] private GameObject Stats;
     [SerializeField] private Text SleepPoints;
     [SerializeField] private Text AcademicPoints;
     [SerializeField] private Text SocialPoints;
+    [Space(10)]
 
+    [Header("Tooltips")]
     [SerializeField] private float TooltipDuration = 5f;
     [ReadOnly] public List<Tooltip> Tooltips = new List<Tooltip>();
 
 	// Use this for initialization
-	void OnEnable ()
+	protected override void Awake ()
     {
-	   MajorFadeToClear(null);
+       base.Awake();
+	   MajorFadeToClear(() => this.OpenMenu(this.StartupMenu));
 	}
 
     void OnGUI()
@@ -181,6 +195,9 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
 
     public void BackFromCurrentMenu()
     {
+        if (Instance.CurrentMenu.NonEscapable)
+            { return; }
+
         Menu previous = (Instance.History.Count > 0) ? Instance.History.Pop() : null;
 
         if (previous != null)
@@ -212,6 +229,7 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
         this.ShowTooltip(tooltip, this.TooltipDuration);
     }
 
+    /*
     private void PauseTime()
     {
         Time.timeScale = 0f;
@@ -221,11 +239,11 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
     {
         Time.timeScale = 1f;
     }
+    */
 
     public void PauseGame()
     {
         Instance.GamePaused = true;
-        Instance.PauseTime();
         Instance.SetMenuFocus();
         Instance.OpenMenu(GUIManager.Instance.PauseMenu);
     }
@@ -238,8 +256,6 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
         foreach (Menu menu in Instance.History)
             { menu.Reset(); }
         Instance.History.Clear();
-        // Possibly wait for the close animation to finish
-        Instance.ResumeTime();
         Instance.GamePaused = false;
     }
 
@@ -263,7 +279,7 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
         if (CustomInputManager.GetButtonDown("Cancel"))
         {
             if (Instance.CurrentMenu != null)
-                { Instance.ResumeGame(); }
+                { Instance.BackFromCurrentMenu(); }
             else
                 { Instance.PauseGame(); }
         }
@@ -272,6 +288,9 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
     /*
      * UI Prefab References
      */
+     [Space(10)]
+     [Header("Prefabs")]
      public PlayerListItem PlayerListItemPrefab;
+     public RoomListItem RoomListItemPrefab;
      public Tooltip TooltipPrefab;
 }

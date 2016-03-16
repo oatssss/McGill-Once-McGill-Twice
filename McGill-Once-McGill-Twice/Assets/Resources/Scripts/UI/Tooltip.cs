@@ -9,7 +9,6 @@ public class Tooltip : MonoBehaviour {
     [ReadOnly] [SerializeField] private float Duration;
     private Coroutine Fading;
     private bool FadingIn = false;
-    private bool FadingOut = false;
 
     void Awake()
     {
@@ -24,12 +23,12 @@ public class Tooltip : MonoBehaviour {
         this.Duration = duration;
         this.Text.text = tooltip;
 
-        if (!this.FadingIn)
+        if (!this.FadingIn && this.Renderer.GetAlpha() != 1)
         {
             if (this.Fading != null)
                 { StopCoroutine(this.Fading); }
 
-            this.Fading = StartCoroutine(FadeUtility.UIAlphaFade(this.Renderer, this.Renderer.GetAlpha(), 1f, FadeDuration, FadeUtility.EaseType.InOut, () => { this.Fading = null; this.FadingIn = false; }));
+            this.Fading = StartCoroutine(FadeUtility.UIAlphaFade(this.Renderer, this.Renderer.GetAlpha(), 1, FadeDuration, FadeUtility.EaseType.InOut, () => { this.Fading = null; this.FadingIn = false; }));
             this.FadingIn = true;
         }
     }
@@ -46,7 +45,7 @@ public class Tooltip : MonoBehaviour {
 
         if (this.Duration <= 0 && this.Fading == null)
         {
-            this.Fading = StartCoroutine(FadeUtility.UIAlphaFade(this.Renderer, this.Renderer.GetAlpha(), 0f, FadeDuration, FadeUtility.EaseType.InOut, () => { this.Fading = null; this.Remove(); }));
+            this.Fading = StartCoroutine(FadeUtility.UIAlphaFade(this.Renderer, this.Renderer.GetAlpha(), 0, FadeDuration, FadeUtility.EaseType.InOut, () => { this.Fading = null; this.Remove(); }));
         }
     }
 }

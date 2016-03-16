@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class PhotonSingleton<T> : Photon.MonoBehaviour
+public class PUNSingletonPersistent<T> : Photon.PunBehaviour
 	where T : Component
 {
 	private static T instance;
@@ -14,6 +14,16 @@ public class PhotonSingleton<T> : Photon.MonoBehaviour
 				}
 			}
 			return instance;
+		}
+	}
+
+	protected virtual void Awake ()
+	{
+		DontDestroyOnLoad (this.gameObject);
+		if (instance == null) {
+			instance = this as T;
+		} else {
+			Destroy (gameObject);
 		}
 	}
 }

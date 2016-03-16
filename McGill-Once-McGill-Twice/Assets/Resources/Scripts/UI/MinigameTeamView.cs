@@ -10,7 +10,7 @@ public class MinigameTeamView : LiveMenuView
     [SerializeField] private Button Button;
     [SerializeField] private List<PlayerListItem> ListItems = new List<PlayerListItem>();
 
-    public override void UpdateSegment()
+    protected override void Update()
     {
         // Ensure the list view has enough slots to show a full size team
         while (this.TeamContainer.Team.MaxSize > this.ListItems.Count)
