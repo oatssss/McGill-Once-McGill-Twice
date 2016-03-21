@@ -299,11 +299,12 @@ public abstract class Minigame : Photon.PunBehaviour
 
     public override void OnPhotonPlayerDisconnected(PhotonPlayer otherPlayer)
     {
-        MinigameTeam correspondingTeam = this.TeamContainers.Find(teamContainer => teamContainer.Team.Contains(otherPlayer)).Team;
+        MinigameTeamContainer correspondingTeamContainer = this.TeamContainers.Find(teamContainer => teamContainer.Team.Contains(otherPlayer));
 
         // If the disconnecting player belonged to a team, remove them from that team
-        if (correspondingTeam != null)
+        if (correspondingTeamContainer)
         {
+            MinigameTeam team = correspondingTeamContainer.Team;
             this.RemovePlayer(otherPlayer, null);
         }
     }

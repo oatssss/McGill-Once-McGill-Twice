@@ -11,6 +11,7 @@ public class RoomListItem : MonoBehaviour, ISelectHandler, IDeselectHandler {
         get { return this.room; }
         set
         {
+            this.room = value;
             string roomName;
             if (value.customProperties.ContainsKey(GameConstants.KEY_ROOMNAME))
                 { roomName = (string) value.customProperties[GameConstants.KEY_ROOMNAME]; }

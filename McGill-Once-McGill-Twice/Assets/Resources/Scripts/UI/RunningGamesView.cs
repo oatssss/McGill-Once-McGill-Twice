@@ -79,6 +79,7 @@ public class RunningGamesView : LiveMenuView {
         this.GreyOut(false);
 
         this.OnlineRooms = PhotonNetwork.GetRoomList();
+        Debug.Log(this.OnlineRooms);
     }
 
     private void GreyOut(bool grey)
@@ -113,5 +114,11 @@ public class RunningGamesView : LiveMenuView {
     public void JoinGame()
     {
         PhotonNetwork.JoinRoom(this.SelectedRoom.Room.name);
+
+        long levelSeed;
+        long.TryParse(this.SelectedRoom.Room.customProperties[GameConstants.KEY_SEED].ToString(), out levelSeed);
+        GUIManager.MajorFadeToBlack( () => GameManager.Instance.GenerateLevel(levelSeed) );
+
+        GUIManager.Instance.ResumeGame();
     }
 }

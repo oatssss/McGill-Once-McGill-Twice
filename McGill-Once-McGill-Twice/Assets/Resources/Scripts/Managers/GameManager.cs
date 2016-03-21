@@ -224,7 +224,7 @@ public class GameManager : UnitySingletonPersistent<GameManager> {
         PhotonNetwork.RaiseEvent(loadFinishedCode, null, true, options);
     }
 
-    private void GenerateLevel(long seed)
+    public void GenerateLevel(long seed)
     {
         // TODO : Generate the level asynchronously
         SceneManager.LoadSceneAsync("World", LoadSceneMode.Additive);
