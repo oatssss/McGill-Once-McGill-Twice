@@ -23,9 +23,9 @@ public abstract class TransitionTeleport : MonoBehaviour {
 
     void OnTriggerStay(Collider other)
     {
-        GUIManager.Instance.ShowTooltip(this.TooltipText, 0);
+        GUIManager.Instance.ShowTooltip(this.TooltipText, GUIManager.TOOL_TIP_DURATION.INSTANTANEOUS);
 
-        if (CustomInputManager.GetButton("Interact Main"))
+        if (CustomInputManager.GetButtonDown("Interact Main"))
         {
             Transition(other.GetComponent<ThirdPersonCharacterCustom>());
         }

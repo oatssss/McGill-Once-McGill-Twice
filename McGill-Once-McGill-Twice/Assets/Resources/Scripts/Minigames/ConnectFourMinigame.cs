@@ -5,8 +5,10 @@ public class ConnectFourMinigame : Minigame
 {
     public MinigameTeamContainer TeamContainerA;
     public MinigameTeamContainer TeamContainerB;
-    [SerializeField] private GameObject PlayerViewA;
-    [SerializeField] private GameObject PlayerViewB;
+    [SerializeField] private GameObject PlayerSpotA;
+    [SerializeField] private GameObject PlayerSpotB;
+    [SerializeField] private GameObject CameraPivot;
+    [SerializeField] private GameObject CameraPivotLength;
     [SerializeField] private ConnectFourBoard Board;
 
     protected override void LocalPlayerJoin(MinigameTeam team)
@@ -14,21 +16,22 @@ public class ConnectFourMinigame : Minigame
         // Handle UI
         base.LocalPlayerJoin(team);
 
-        CameraManager.SetViewPosition(this.Board.transform.position);
+        CameraManager.SetViewPosition(this.CameraPivot.transform.position);
+        CameraManager.SetViewForwardImmediate(this.Board.transform.forward);
+        CameraManager.SetPivotRadius((this.CameraPivotLength.transform.position - this.CameraPivot.transform.position).magnitude);
+        CameraManager.SetViewLookAngleMax(90f);
 
         // Join as A
         if (team == this.TeamContainerA.Team)
         {
-            Vector3 directionA = this.Board.transform.position - this.PlayerViewA.transform.position;
-            CameraManager.SetViewForwardImmediate(directionA);
-            CameraManager.SetPivotRadius(directionA.magnitude);
+            // Walk player to designated spot for A
+            PlayerManager.GetMainPlayer(true).ThirdPersonCharacter.AIController.SetTarget(this.PlayerSpotA.transform);
         }
         // Otherwise join as B
         else
         {
-            Vector3 directionB = this.Board.transform.position - this.PlayerViewB.transform.position;
-            CameraManager.SetViewForwardImmediate(directionB);
-            CameraManager.SetPivotRadius(directionB.magnitude);
+            // Walk player to designated spot for B
+            PlayerManager.GetMainPlayer(true).ThirdPersonCharacter.AIController.SetTarget(this.PlayerSpotB.transform);
         }
     }
 

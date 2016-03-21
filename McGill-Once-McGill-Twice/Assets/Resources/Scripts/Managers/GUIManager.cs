@@ -36,6 +36,7 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
 
     [Header("Tooltips")]
     [SerializeField] private float TooltipDuration = 5f;
+    public enum TOOL_TIP_DURATION { DEFAULT, INSTANTANEOUS }
     [ReadOnly] public List<Tooltip> Tooltips = new List<Tooltip>();
 
     void Start()
@@ -225,6 +226,15 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
         this.ShowTooltip(tooltip, this.TooltipDuration);
     }
 
+    public void ShowTooltip(string tooltip, TOOL_TIP_DURATION duration)
+    {
+        switch (duration)
+        {
+            case TOOL_TIP_DURATION.DEFAULT:         this.ShowTooltip(tooltip, this.TooltipDuration); break;
+            case TOOL_TIP_DURATION.INSTANTANEOUS:   this.ShowTooltip(tooltip, 0.25f); break;
+        }
+    }
+
     public void PauseGame()
     {
         Instance.GamePaused = true;
@@ -274,7 +284,5 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
      */
      [Space(10)]
      [Header("Prefabs")]
-     public PlayerListItem PlayerListItemPrefab;
-     public RoomListItem RoomListItemPrefab;
      public Tooltip TooltipPrefab;
 }

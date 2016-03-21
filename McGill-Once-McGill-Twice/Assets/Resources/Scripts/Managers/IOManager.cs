@@ -50,19 +50,39 @@ public class IOManager {
         return deserialized;
     }
 
+    public static void DeleteFile(string relativePath)
+    {
+        string filePath = Application.persistentDataPath + "/" + relativePath;
+        File.Delete(filePath);
+    }
+
     public static bool FileExists(string relativePath)
     {
         return File.Exists(Application.persistentDataPath + "/" + relativePath);
+    }
+
+    class DescendedDateComparer : IComparer<DateTime>
+    {
+        public int Compare(DateTime x, DateTime y)
+        {
+            // use the default comparer to do the original comparison for datetimes
+            int ascendingResult = Comparer<DateTime>.Default.Compare(x, y);
+
+            // turn the result around
+            return 0 - ascendingResult;
+        }
     }
 
     public static SortedList<DateTime,FileInfo> GetSavedSessionFiles()
     {
         DirectoryInfo dir = Directory.CreateDirectory(Application.persistentDataPath + "/" + GameConstants.PATH_SESSION_SAVES);
         FileInfo[] info = dir.GetFiles("*." + GameConstants.SUFFIX_SESSION_SAVES);
-        SortedList<DateTime,FileInfo> list = new SortedList<DateTime,FileInfo>();
+        SortedList<DateTime,FileInfo> list = new SortedList<DateTime,FileInfo>(new DescendedDateComparer());
 
         foreach (FileInfo f in info)
             { list.Add(f.LastWriteTime,f); }
+
+
 
         return list;
     }

@@ -60,6 +60,8 @@ public class PlayerManager : UnitySingletonPersistent<PlayerManager> {
         MainPlayer = playerObject.GetComponent<Player>();
         MainPlayer.ThirdPersonCharacter.EnableUserControls();
 
+        PhotonNetwork.player.TagObject = MainPlayer;
+
         CameraManager.SetViewToPlayer();
     }
 
@@ -178,13 +180,5 @@ public class PlayerManager : UnitySingletonPersistent<PlayerManager> {
     public static void RemoveSocialPoints(float points)
     {
         MainPlayer.AcademicStatus -= points;
-    }
-
-    void Update()
-    {
-        if (CustomInputManager.GetButtonDown("Interact Main"))
-        {
-            Respawn();
-        }
     }
 }

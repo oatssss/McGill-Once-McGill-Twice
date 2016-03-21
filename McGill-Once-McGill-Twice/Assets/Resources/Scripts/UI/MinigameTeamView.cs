@@ -9,13 +9,15 @@ public class MinigameTeamView : LiveMenuView
     [SerializeField] private RectTransform Content;
     [SerializeField] private Button Button;
     [SerializeField] private List<PlayerListItem> ListItems = new List<PlayerListItem>();
+    [SerializeField] private PlayerListItem PlayerListItemPrefab;
 
     protected override void Update()
     {
         // Ensure the list view has enough slots to show a full size team
         while (this.TeamContainer.Team.MaxSize > this.ListItems.Count)
         {
-            PlayerListItem newListItem = Instantiate<PlayerListItem>(GUIManager.Instance.PlayerListItemPrefab);
+            PlayerListItem newListItem = Instantiate<PlayerListItem>(this.PlayerListItemPrefab);
+            newListItem.gameObject.SetActive(true);
             newListItem.SetUnoccupied();
             newListItem.gameObject.transform.SetParent(this.Content, false);
             this.ListItems.Add(newListItem);

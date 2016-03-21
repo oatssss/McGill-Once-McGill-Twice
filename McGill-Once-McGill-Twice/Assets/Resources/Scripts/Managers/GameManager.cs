@@ -22,6 +22,10 @@ public class GameManager : UnitySingletonPersistent<GameManager> {
         public GameState()
         {
             this.SaveGameIdentifier = -1;   // A value of -1 means this GameState is newly created, not loaded
+            this.RoomName = "";
+            this.AutosaveInterval = 15;
+            this.AutosaveUnit = GameManager.AUTOSAVE_UNIT.SECONDS;
+            this.MaxPlayers = 5;
         }
 
         public PlayerState GetPlayerData(PhotonPlayer player)
@@ -66,7 +70,7 @@ public class GameManager : UnitySingletonPersistent<GameManager> {
         }
     }
 
-    private GameState SessionState;
+    public GameState SessionState = new GameState();
     private UserSettings Settings;
 
     void Start()
@@ -102,6 +106,12 @@ public class GameManager : UnitySingletonPersistent<GameManager> {
                 { PlayerManager.Respawn(); }
 
             GUIManager.MajorFadeToClear(null);
+
+            if (PhotonNetwork.isMasterClient)
+            {
+                // Begin the autosaving
+                this.SetAutosaveInterval(this.SessionState.AutosaveInterval, this.SessionState.AutosaveUnit);
+            }
         }
     }
 
@@ -249,9 +259,6 @@ public class GameManager : UnitySingletonPersistent<GameManager> {
         if (newGame)
         {
             this.SessionState.SaveGameIdentifier = GameManager.NextAvailableSaveGameIdentifier();
-
-            // Begin the autosaving
-            this.SetAutosaveInterval(this.SessionState.AutosaveInterval, this.SessionState.AutosaveUnit);
         }
 
         this.GenerateLevel(this.SessionState.LevelSeed);
@@ -259,6 +266,13 @@ public class GameManager : UnitySingletonPersistent<GameManager> {
 
     public void HostGame(SavedGameItem savedGameItem, bool useCustomSeed)
     {
+        System.Guid guid = System.Guid.NewGuid();
+        string uniqueRoomName = guid.ToString();
+
+        if (string.IsNullOrEmpty(savedGameItem.State.RoomName) || savedGameItem.State.RoomName.Trim().Length == 0)
+        {
+            savedGameItem.State.RoomName = guid.ToString();
+        }
         this.SessionState = savedGameItem.State;
 
         if (!useCustomSeed)
@@ -283,12 +297,11 @@ public class GameManager : UnitySingletonPersistent<GameManager> {
         options.customRoomPropertiesForLobby = new string[] { GameConstants.KEY_ROOMNAME, GameConstants.KEY_SEED };
 
         // Fade to black and create a room as callback
-        GUIManager.MajorFadeToBlack( () => PhotonNetwork.CreateRoom(null, options ,null) );
+        GUIManager.MajorFadeToBlack( () => PhotonNetwork.CreateRoom(uniqueRoomName, options ,null) );
     }
 
     public void HostGame(SavedGameItem savedGameItem, Toggle customSeedToggle)
     {
-        Debug.Log("YES");
         this.HostGame(savedGameItem, customSeedToggle.isOn);
     }
 

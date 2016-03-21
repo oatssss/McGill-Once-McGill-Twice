@@ -6,6 +6,7 @@ public class RunningGamesView : LiveMenuView {
 
     [SerializeField] private GameObject Content;
     [SerializeField] private Button JoinGameButton;
+    [SerializeField] private RoomListItem RoomListItemPrefab;
     [ReadOnly] [SerializeField] private bool GreyedFlag;
     [ReadOnly] [SerializeField] private bool RefreshFlag;
     [ReadOnly] [SerializeField] private List<RoomListItem> Rooms = new List<RoomListItem>();
@@ -29,7 +30,8 @@ public class RunningGamesView : LiveMenuView {
             // Extend the list to match the online rooms
             while (OnlineRooms.Length > this.Rooms.Count)
             {
-                RoomListItem roomListItem = Instantiate<RoomListItem>(GUIManager.Instance.RoomListItemPrefab);
+                RoomListItem roomListItem = Instantiate<RoomListItem>(this.RoomListItemPrefab);
+                roomListItem.gameObject.SetActive(true);
                 roomListItem.transform.SetParent(this.Content.transform, false);
                 this.Rooms.Add(roomListItem);
             }
@@ -102,9 +104,9 @@ public class RunningGamesView : LiveMenuView {
         this.SelectedRoom = room;
     }
 
-    public void Deselect(RoomListItem room)
+    public void Deselect(RoomListItem caller)
     {
-        if (this.SelectedRoom == room)
+        if (this.SelectedRoom == caller)
             { this.SelectedRoom = null; }
     }
 

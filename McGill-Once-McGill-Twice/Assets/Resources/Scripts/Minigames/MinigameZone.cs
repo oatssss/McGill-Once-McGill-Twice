@@ -17,7 +17,7 @@ public class MinigameZone : MonoBehaviour {
 
     void OnTriggerStay(Collider other)
     {
-        GUIManager.Instance.ShowTooltip("Press E for game details.", 0f);
+        GUIManager.Instance.ShowTooltip("Press E for game details.", GUIManager.TOOL_TIP_DURATION.INSTANTANEOUS);
 
         if (CustomInputManager.GetButtonDown("Interact Main"))
         {

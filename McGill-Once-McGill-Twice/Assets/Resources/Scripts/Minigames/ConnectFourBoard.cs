@@ -5,6 +5,7 @@ using ExtensionMethods;
 public class ConnectFourBoard : Photon.PunBehaviour {
 
     [SerializeField] private Minigame ParentMinigame;
+    [SerializeField] private bool SingleSided;
     private bool LocalSideB = false;
     private PhotonPlayer RemotePlayer;
     private ConnectFourSlot.Colour LocalColour;
@@ -62,7 +63,7 @@ public class ConnectFourBoard : Photon.PunBehaviour {
         {
             this.LocalSideB = false;
             this.RemotePlayer = B;
-            this.LocalColour = ConnectFourSlot.Colour.Blue;
+            this.LocalColour = ConnectFourSlot.Colour.Black;
             this.RemoteColour = ConnectFourSlot.Colour.Red;
             this.LocalSelectors = SelectorsA;
             this.RemoteSelectors = SelectorsB;
@@ -72,7 +73,7 @@ public class ConnectFourBoard : Photon.PunBehaviour {
             this.LocalSideB = true;
             this.RemotePlayer = A;
             this.LocalColour = ConnectFourSlot.Colour.Red;
-            this.RemoteColour = ConnectFourSlot.Colour.Blue;
+            this.RemoteColour = ConnectFourSlot.Colour.Black;
             this.LocalSelectors = SelectorsB;
             this.RemoteSelectors = SelectorsA;
         }
@@ -133,8 +134,14 @@ public class ConnectFourBoard : Photon.PunBehaviour {
             return;
         }
 
+        int leftIndexRemote = currentRemoteSelectorIndex;
+        if (this.SingleSided)
+            { leftIndexRemote++; }
+        else
+            { leftIndexRemote--; }
+
         this.RemoteSelectors[currentRemoteSelectorIndex].Status = ConnectFourSlot.Colour.Empty;
-        this.RemoteSelectors[currentRemoteSelectorIndex - 1].Status = this.RemoteColour;
+        this.RemoteSelectors[leftIndexRemote].Status = this.RemoteColour;
     }
 
     [PunRPC]
@@ -146,8 +153,14 @@ public class ConnectFourBoard : Photon.PunBehaviour {
             return;
         }
 
+        int rightIndexRemote = currentRemoteSelectorIndex;
+        if (this.SingleSided)
+            { rightIndexRemote--; }
+        else
+            { rightIndexRemote++; }
+
         this.RemoteSelectors[currentRemoteSelectorIndex].Status = ConnectFourSlot.Colour.Empty;
-        this.RemoteSelectors[currentRemoteSelectorIndex + 1].Status = this.RemoteColour;
+        this.RemoteSelectors[rightIndexRemote].Status = this.RemoteColour;
     }
 
     private void AcceptMove()
@@ -161,7 +174,7 @@ public class ConnectFourBoard : Photon.PunBehaviour {
         int slotColumn = this.LocalSelectorIndex;
 
         // Board is flipped from B side
-        if (this.LocalSideB)
+        if (this.LocalSideB && !this.SingleSided)
         { slotColumn = this.LocalSelectors.Length - this.LocalSelectorIndex - 1; }
 
         // Get the next empty slot in the column if it exists

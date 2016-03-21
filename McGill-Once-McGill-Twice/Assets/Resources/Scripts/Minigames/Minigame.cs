@@ -86,7 +86,7 @@ public abstract class Minigame : Photon.PunBehaviour
         while (!CustomInputManager.GetButtonDown("Interact Main"))
         {
             // Show UI requesting interact to return to lobby
-            GUIManager.Instance.ShowTooltip("Press E to continue.", 0f);
+            GUIManager.Instance.ShowTooltip("Press E to continue.", GUIManager.TOOL_TIP_DURATION.INSTANTANEOUS);
             yield return null;
         }
 
