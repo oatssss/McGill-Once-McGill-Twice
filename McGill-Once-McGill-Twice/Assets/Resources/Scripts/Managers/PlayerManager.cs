@@ -30,7 +30,6 @@ public class PlayerManager : UnitySingletonPersistent<PlayerManager> {
             if (logErrors)
                 { Debug.LogErrorFormat("{0} could not obtain the player's script.", Instance); }
 
-            // PlayerIsAlive = false;
             return null;
         }
         else
@@ -44,11 +43,6 @@ public class PlayerManager : UnitySingletonPersistent<PlayerManager> {
     public static Player GetMainPlayer()
     {
         return GetMainPlayer(true);
-    }
-
-    void OnEnable()
-    {
-        // PlayerIsAlive = true;
     }
 
     /// <summary>Respawns the player.</summary>
@@ -67,8 +61,48 @@ public class PlayerManager : UnitySingletonPersistent<PlayerManager> {
         MainPlayer.ThirdPersonCharacter.EnableUserControls();
 
         CameraManager.SetViewToPlayer();
+    }
 
-        // PlayerIsAlive = true;
+    public static void Respawn(float sleepStatus, float academicStatus, float socialStatus, Vector3 location)
+    {
+        Respawn();
+        if (!IsPlayerDead(sleepStatus, academicStatus, socialStatus))
+        {
+            MainPlayer.transform.position = location;
+            MainPlayer.SleepStatus = sleepStatus;
+            MainPlayer.AcademicStatus = academicStatus;
+            MainPlayer.SocialStatus = socialStatus;
+        }
+    }
+
+    public static bool IsPlayerDead(float sleepStatus, float academicStatus, float socialStatus)
+    {
+        int emptyBars = 0;
+
+        if (sleepStatus <= 0)
+            { emptyBars++; }
+        if (academicStatus <= 0)
+            { emptyBars++; }
+        if (socialStatus <= 0)
+            { emptyBars++; }
+
+        if (emptyBars >= 2)
+            { return true; }
+        else
+            { return false; }
+    }
+
+    public static bool IsPlayerDead(Player player)
+    {
+        if (!player)
+            { return true; }
+        else
+            { return IsPlayerDead(player.SleepStatus, player.AcademicStatus, player.SocialStatus); }
+    }
+
+    public static bool IsPlayerDead()
+    {
+        return IsPlayerDead(GetMainPlayer(false));
     }
 
     /// <summary>Kills the player's current character.</summary>
@@ -144,5 +178,13 @@ public class PlayerManager : UnitySingletonPersistent<PlayerManager> {
     public static void RemoveSocialPoints(float points)
     {
         MainPlayer.AcademicStatus -= points;
+    }
+
+    void Update()
+    {
+        if (CustomInputManager.GetButtonDown("Interact Main"))
+        {
+            Respawn();
+        }
     }
 }

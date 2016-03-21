@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 public class GUIManager : UnitySingletonPersistent<GUIManager> {
 
-    public static readonly float FadeDuration = 0.5f;
+    public static readonly float FadeDuration = 1f;
 
     private bool GamePaused = false;
     private Menu CurrentMenu;
@@ -38,12 +38,10 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
     [SerializeField] private float TooltipDuration = 5f;
     [ReadOnly] public List<Tooltip> Tooltips = new List<Tooltip>();
 
-	// Use this for initialization
-	protected override void Awake ()
+    void Start()
     {
-       base.Awake();
-	   MajorFadeToClear(() => this.OpenMenu(this.StartupMenu));
-	}
+        MajorFadeToClear(() => this.OpenMenu(this.StartupMenu));
+    }
 
     void OnGUI()
     {
@@ -76,7 +74,11 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
         if (Instance.Fading != null)
             { Instance.StopCoroutine(Instance.Fading); }
 
-        Instance.Fading = Instance.StartCoroutine(FadeUtility.UIAlphaFade(Instance.MinorFadeRenderer, Instance.MinorFadeRenderer.GetAlpha(), 1f, FadeDuration, FadeUtility.EaseType.InOut, () => { Instance.Fading = null; callback(); }));
+        Instance.Fading = Instance.StartCoroutine(FadeUtility.UIAlphaFade(Instance.MinorFadeRenderer, Instance.MinorFadeRenderer.GetAlpha(), 1f, FadeDuration, FadeUtility.EaseType.InOut, () => {
+                Instance.Fading = null;
+                if (callback != null)
+                    { callback(); }
+            }));
     }
 
     /// <summary>Cause the screen to fade to clear but don't cover UI elements.</summary>
@@ -86,7 +88,11 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
         if (Instance.Fading != null)
             { Instance.StopCoroutine(Instance.Fading); }
 
-        Instance.Fading = Instance.StartCoroutine(FadeUtility.UIAlphaFade(Instance.MinorFadeRenderer, Instance.MinorFadeRenderer.GetAlpha(), 0f, FadeDuration, FadeUtility.EaseType.InOut, () => { Instance.Fading = null; callback(); }));
+        Instance.Fading = Instance.StartCoroutine(FadeUtility.UIAlphaFade(Instance.MinorFadeRenderer, Instance.MinorFadeRenderer.GetAlpha(), 0f, FadeDuration, FadeUtility.EaseType.InOut, () => {
+                Instance.Fading = null;
+                if (callback != null)
+                    { callback(); }
+            }));
     }
 
     /// <summary>Cause the screen to fade to black, the fade covers everything including UI elements.</summary>
@@ -99,7 +105,11 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
         //  Clear the minor fade overlay in case it's opaque
         Instance.MinorFadeRenderer.SetAlpha(0f);
 
-        Instance.Fading = Instance.StartCoroutine(FadeUtility.UIAlphaFade(Instance.MajorFadeRenderer, Instance.MajorFadeRenderer.GetAlpha(), 1f, FadeDuration, FadeUtility.EaseType.InOut, () => { Instance.Fading = null; callback(); }));
+        Instance.Fading = Instance.StartCoroutine(FadeUtility.UIAlphaFade(Instance.MajorFadeRenderer, Instance.MajorFadeRenderer.GetAlpha(), 1f, FadeDuration, FadeUtility.EaseType.InOut, () => {
+                Instance.Fading = null;
+                if (callback != null)
+                    { callback(); }
+            }));
     }
 
     /// <summary>Cause the screen to fade to clear, the fade covers everything including UI elements.</summary>
@@ -112,26 +122,12 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
         //  Clear the minor fade overlay in case it's opaque
         Instance.MinorFadeRenderer.SetAlpha(0f);
 
-        Instance.Fading = Instance.StartCoroutine(FadeUtility.UIAlphaFade(Instance.MajorFadeRenderer, Instance.MajorFadeRenderer.GetAlpha(), 0f, FadeDuration, FadeUtility.EaseType.InOut, () => { Instance.Fading = null; callback(); }));
+        Instance.Fading = Instance.StartCoroutine(FadeUtility.UIAlphaFade(Instance.MajorFadeRenderer, Instance.MajorFadeRenderer.GetAlpha(), 0f, FadeDuration, FadeUtility.EaseType.InOut, () => {
+                Instance.Fading = null;
+                if (callback != null)
+                    { callback(); }
+            }));
     }
-
-    /*
-    private static IEnumerator DoFadeToBlack(CanvasRenderer renderer, Action callback)
-    {
-        yield return Instance.StartCoroutine(FadeUtility.UIAlphaFade(renderer, 0f, 1f, FadeDuration, FadeUtility.EaseType.InOut));
-
-        if (callback != null)
-            { callback(); }
-    }
-
-    private static IEnumerator DoFadeToClear(CanvasRenderer renderer, Action callback)
-    {
-        yield return Instance.StartCoroutine(FadeUtility.UIAlphaFade(renderer, 1f, 0f, FadeDuration, FadeUtility.EaseType.InOut));
-
-        if (callback != null)
-            { callback(); }
-    }
-    */
 
     public static void ShowMinigameJoinedUI(Minigame minigame)
     {
@@ -228,18 +224,6 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
     {
         this.ShowTooltip(tooltip, this.TooltipDuration);
     }
-
-    /*
-    private void PauseTime()
-    {
-        Time.timeScale = 0f;
-    }
-
-    private void ResumeTime()
-    {
-        Time.timeScale = 1f;
-    }
-    */
 
     public void PauseGame()
     {

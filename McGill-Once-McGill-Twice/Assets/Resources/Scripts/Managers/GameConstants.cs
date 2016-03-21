@@ -3,7 +3,12 @@ using System.Collections;
 
 public class GameConstants {
 
-    //  Static list of tags
+    // IO
+    public static readonly string PATH_SESSION_SAVES = "Sessions";
+    public static readonly string SUFFIX_SESSION_SAVES = "momt";
+    public static readonly string USER_SETTINGS_FILE = "user.settings";
+
+    // Static list of tags
     public static readonly string TAG_UNTAGGED = "Untagged";
     public static readonly string TAG_RESPAWN = "Respawn";
     public static readonly string TAG_FINISH = "Finish";
@@ -18,8 +23,13 @@ public class GameConstants {
     // Static list of layers
     public static readonly string LAYER_PLAYER = "Player";
 
-    //  Static list of assets
+    // Static list of assets
     public static readonly string ASSET_MALCOLM = "Prefabs/Characters/Malcolm/Malcolm";
+
+    // Misc
+
+    public static readonly string KEY_ROOMNAME = "n";
+    public static readonly string KEY_SEED = "s";
 
     public static readonly float TRANSITION_SPEED_MULTIPLIER = 7f;
 }

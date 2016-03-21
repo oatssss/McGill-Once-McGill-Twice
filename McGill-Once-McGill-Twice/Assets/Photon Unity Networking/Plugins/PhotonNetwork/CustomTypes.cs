@@ -37,6 +37,7 @@ internal static class CustomTypes
         PhotonPeer.RegisterType(typeof(PhotonPlayer), (byte)'P', SerializePhotonPlayer, DeserializePhotonPlayer);
         PhotonPeer.RegisterType(typeof(PhotonView), (byte)'A', SerializePhotonView, DeserializePhotonView);
         PhotonPeer.RegisterType(typeof(MinigameTeam), (byte)'T', SerializeMinigameTeam, DeserializeMinigameTeam);
+        PhotonPeer.RegisterType(typeof(GameManager.PlayerState), (byte)'S', SerializePlayerState, DeserializePlayerState);
     }
 
 
@@ -178,19 +179,19 @@ internal static class CustomTypes
             return null;
         }
     }
-    
+
     // BEGIN CUSTOM SERIALIZERS
-    
+
     private static byte[] SerializePhotonView(object customobject)
     {
         PhotonView view = (PhotonView)customobject;
-        
+
         byte[] bytes = new byte[4];
         int index = 0;
         Protocol.Serialize(view.viewID, bytes, ref index);
         return bytes;
     }
-    
+
     private static object DeserializePhotonView(byte[] bytes)
     {
         int viewID;
@@ -198,11 +199,11 @@ internal static class CustomTypes
         Protocol.Deserialize(out viewID, bytes, ref index);
         return PhotonView.Find(viewID);
     }
-    
+
     private static byte[] SerializeMinigameTeam(object customobject)
     {
         MinigameTeam team = (MinigameTeam)customobject;
-        
+
         int byteSize = 0;
         byteSize += sizeof(int); // sizeof(int) bytes for the team ID
         byteSize += sizeof(int); // sizeof(int) bytes for the score
@@ -210,12 +211,12 @@ internal static class CustomTypes
         byteSize += team.MaxSize * sizeof(short); // sizeof(short) bytes per player to indicate whether null or an actual value (short is 0 or 1)
         byteSize += team.MaxSize * sizeof(int); // sizeof(int) bytes per player ID
         byte[] bytes = new byte[byteSize];
-        
+
         int index = 0;
         Protocol.Serialize(team.TeamID, bytes, ref index);
         Protocol.Serialize(team.Score, bytes, ref index);
         Protocol.Serialize(team.MaxSize, bytes, ref index);
-        
+
         foreach (PhotonPlayer player in team)
         {
             if (player != null)
@@ -227,33 +228,33 @@ internal static class CustomTypes
             else
                 { Protocol.Serialize((short)0, bytes, ref index); }
         }
-        
+
         return bytes;
     }
-    
+
     private static object DeserializeMinigameTeam(byte[] bytes)
-    {        
+    {
         int index = 0;
         int teamID;
         int score;
         int maxSize;
-        
+
         // Deserialize teamID, score, and maxSize
         Protocol.Deserialize(out teamID, bytes, ref index);
         Protocol.Deserialize(out score, bytes, ref index);
         Protocol.Deserialize(out maxSize, bytes, ref index);
-        
+
         // Make a team with maxSize player slots
         MinigameTeam team = new MinigameTeam(teamID, maxSize);
         team.Score = score; // Sync the score
-        
+
         // Sync the players
         for (int i = 0; i < maxSize; i++)
         {
             short slotFilled;
             int indexOfID = index + (maxSize * sizeof(short));
             Protocol.Deserialize(out slotFilled, bytes, ref index);
-            
+
             int ID;
             if (slotFilled == 1)
             {
@@ -262,8 +263,68 @@ internal static class CustomTypes
                 team.AddPlayer(player);
             }
         }
-        
+
         return team;
+    }
+
+    private static byte[] SerializePlayerState(object playerState)
+    {
+        GameManager.PlayerState state = (GameManager.PlayerState)playerState;
+
+        int byteSize = 0;
+        byteSize += sizeof(short); // sizeof(short) bytes to hold a null flag
+        byteSize += sizeof(float); // sizeof(float) bytes to hold sleep status
+        byteSize += sizeof(float); // sizeof(float) bytes to hold academic status
+        byteSize += sizeof(float); // sizeof(float) bytes to hold social status
+        byteSize += sizeof(float); // sizeof(float) bytes to hold x location
+        byteSize += sizeof(float); // sizeof(float) bytes to hold y location
+        byteSize += sizeof(float); // sizeof(float) bytes to hold z location
+        byte[] bytes = new byte[byteSize];
+
+        int index = 0;
+        if (state == null)
+            { Protocol.Serialize((short)1, bytes, ref index); return bytes; }
+        else
+            { Protocol.Serialize((short)0, bytes, ref index); }
+        Protocol.Serialize(state.SleepStatus, bytes, ref index);
+        Protocol.Serialize(state.AcademicStatus, bytes, ref index);
+        Protocol.Serialize(state.SocialStatus, bytes, ref index);
+        Protocol.Serialize(state.Location.x, bytes, ref index);
+        Protocol.Serialize(state.Location.y, bytes, ref index);
+        Protocol.Serialize(state.Location.z, bytes, ref index);
+
+        return bytes;
+    }
+
+    private static object DeserializePlayerState(byte[] bytes)
+    {
+        int index = 0;
+        short nullFlag;
+        float sleepStatus;
+        float academicStatus;
+        float socialStatus;
+        float xLoc;
+        float yLoc;
+        float zLoc;
+
+        Protocol.Deserialize(out nullFlag, bytes, ref index);
+
+        if (nullFlag == 1)
+            { return null; }
+
+        Protocol.Deserialize(out sleepStatus, bytes, ref index);
+        Protocol.Deserialize(out academicStatus, bytes, ref index);
+        Protocol.Deserialize(out socialStatus, bytes, ref index);
+        Protocol.Deserialize(out xLoc, bytes, ref index);
+        Protocol.Deserialize(out yLoc, bytes, ref index);
+        Protocol.Deserialize(out zLoc, bytes, ref index);
+
+        Vector3 location = new Vector3(xLoc, yLoc, zLoc);
+
+        // Make a team with maxSize player slots
+        GameManager.PlayerState state = new GameManager.PlayerState(sleepStatus, academicStatus, socialStatus, location);
+
+        return state;
     }
 
     #endregion

@@ -2,6 +2,8 @@
 
 public class PhotonManager : PUNSingletonPersistent<PhotonManager> {
 
+    public enum EVENT_CODES { REQUEST_LOAD_FINISHED, RECEIVE_PLAYER_DATA }
+
     void Start()
     {
         PhotonNetwork.autoCleanUpPlayerObjects = false;
@@ -28,20 +30,29 @@ public class PhotonManager : PUNSingletonPersistent<PhotonManager> {
         GUIManager.Instance.ShowTooltip("You were disconnected (" + cause + ").");
     }
 
+    /*
     public override void OnJoinedLobby()
     {
         // PhotonNetwork.JoinRandomRoom();
     }
 
-    void OnPhotonRandomJoinFailed()
+
+    public void OnPhotonRandomJoinFailed()
     {
         Debug.Log("Can't join random room!");
         PhotonNetwork.CreateRoom(null);
     }
+    */
 
     public override void OnJoinedRoom()
     {
-        PlayerManager.Respawn();
+        PhotonNetwork.isMessageQueueRunning = false;
+        // PlayerManager.Respawn();
         PhotonNetwork.playerName = "Oats";
+    }
+
+    public override void OnCreatedRoom()
+    {
+        GameManager.Instance.InitializeHostGame();
     }
 }

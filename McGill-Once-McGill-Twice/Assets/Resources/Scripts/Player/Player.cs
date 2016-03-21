@@ -3,7 +3,7 @@ using System;
 using System.Collections;
 
 public class Player : MonoBehaviour {
-    
+
     [SerializeField] private ThirdPersonCharacterCustom _ThirdPersonCharacter;
     public ThirdPersonCharacterCustom ThirdPersonCharacter
     {
@@ -18,7 +18,7 @@ public class Player : MonoBehaviour {
                     if (playerScript != null)
                         { return playerScript; }
                 }
-    
+
                 Debug.LogErrorFormat("{0} could not obtain the player's third person character script.", this);
                 return null;
             }
@@ -28,7 +28,7 @@ public class Player : MonoBehaviour {
             }
         }
     }
-    
+
     [Range(0f, 100f)] [SerializeField] private float _SleepStatus = 100f;
     [Range(0f, 100f)] [SerializeField] private float _AcademicStatus = 100f;
     [Range(0f, 100f)] [SerializeField] private float _SocialStatus = 100f;
@@ -38,28 +38,37 @@ public class Player : MonoBehaviour {
 
 	// Use this for initialization
 	void OnEnable () {
-	   
+
 	}
-	
+
 	void Update () {
         //  Continually check if the player's dead
-        int emptyBars = 0;
-        
-        if (this.SleepStatus <= 0)
-            { emptyBars++; }
-        if (this.AcademicStatus <= 0)
-            { emptyBars++; }
-        if (this.SocialStatus <= 0)
-            { emptyBars++; }
-            
-        if (emptyBars >= 2)
+        if (PlayerManager.IsPlayerDead(this))
             { Die(); }
 	}
-    
+
     public void Die()
     {
         //  TODO : Trigger death animation and disable user controls
         //  TODO : Display death/respawn UI
         Destroy(gameObject);
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.isWriting)
+        {
+            // We own this player: send the others our data
+            stream.SendNext(this.SleepStatus);
+            stream.SendNext(this.AcademicStatus);
+            stream.SendNext(this.SocialStatus);
+        }
+        else
+        {
+            // Network player, receive data
+            this.SleepStatus = (float) stream.ReceiveNext();
+            this.AcademicStatus = (float) stream.ReceiveNext();
+            this.SocialStatus = (float) stream.ReceiveNext();
+        }
     }
 }

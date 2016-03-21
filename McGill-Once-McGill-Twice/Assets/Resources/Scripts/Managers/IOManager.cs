@@ -1,13 +1,15 @@
 ﻿using UnityEngine;
+using System;
 using System.IO;
+using System.Collections.Generic;
 using FullSerializer;
 
 public class IOManager {
-    
+
     public class ObjectParseException : IOException { }
-    
+
     private static readonly fsSerializer Serializer = new fsSerializer();
-    
+
     public static string Serialize<T>(T aValue)
     {
         // serialize the data
@@ -17,7 +19,7 @@ public class IOManager {
         // emit the data via JSON
         return fsJsonPrinter.CompressedJson(data);
     }
-    
+
     public static T Deserialize<T>(string serializedState) {
         // step 1: parse the JSON data
         fsData data = fsJsonParser.Parse(serializedState);
@@ -26,28 +28,42 @@ public class IOManager {
         object deserialized = null;
         Serializer.TryDeserialize(data, typeof(T), ref deserialized).AssertSuccess();
         T output = (T) deserialized;
-        
+
         if (output == null)
             { throw new ObjectParseException(); }
         else
             { return (T) deserialized; }
     }
-    
+
     public static void WriteToFile<T>(string relativePath, T aValue)
     {
         string filePath = Application.persistentDataPath + "/" + relativePath;
         string serialized = Serialize<T>(aValue);
         File.WriteAllText(filePath, serialized);
-        // StreamWriter fileWriter = File.CreateText(fileName);
-        // fileWriter.WriteLine(serialzed);
-        // fileWriter.Close();
     }
-    
+
     public static T ReadFromFile<T>(string relativePath)
     {
         string filePath = Application.persistentDataPath + "/" + relativePath;
         string serialized = File.ReadAllText(filePath);
         T deserialized = Deserialize<T>(serialized);
         return deserialized;
+    }
+
+    public static bool FileExists(string relativePath)
+    {
+        return File.Exists(Application.persistentDataPath + "/" + relativePath);
+    }
+
+    public static SortedList<DateTime,FileInfo> GetSavedSessionFiles()
+    {
+        DirectoryInfo dir = Directory.CreateDirectory(Application.persistentDataPath + "/" + GameConstants.PATH_SESSION_SAVES);
+        FileInfo[] info = dir.GetFiles("*." + GameConstants.SUFFIX_SESSION_SAVES);
+        SortedList<DateTime,FileInfo> list = new SortedList<DateTime,FileInfo>();
+
+        foreach (FileInfo f in info)
+            { list.Add(f.LastWriteTime,f); }
+
+        return list;
     }
 }

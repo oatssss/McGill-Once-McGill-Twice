@@ -1,12 +1,15 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections.Generic;
 
 public class RunningGamesView : LiveMenuView {
 
     [SerializeField] private GameObject Content;
+    [SerializeField] private Button JoinGameButton;
     [ReadOnly] [SerializeField] private bool GreyedFlag;
     [ReadOnly] [SerializeField] private bool RefreshFlag;
     [ReadOnly] [SerializeField] private List<RoomListItem> Rooms = new List<RoomListItem>();
+    [ReadOnly] [SerializeField] private RoomListItem SelectedRoom;
     private RoomInfo[] OnlineRooms;
 
     protected override void Update()
@@ -38,17 +41,15 @@ public class RunningGamesView : LiveMenuView {
                 this.Rooms.RemoveAt(0);
                 Destroy(del.gameObject);
             }
+        }
 
-            // Synchronize the list
-            int i = 0;
-            foreach (RoomListItem roomListItem in this.Rooms)
-            {
-                roomListItem.Name.text = this.OnlineRooms[i].name;
-                int numPlayers = this.OnlineRooms[i].playerCount;
-                int maxPlayers = this.OnlineRooms[i].maxPlayers;
-                roomListItem.Players.text = numPlayers + "/" + maxPlayers;
-                i++;
-            }
+        // Synchronize the list
+        int i = 0;
+        foreach (RoomListItem roomListItem in this.Rooms)
+        {
+            if (roomListItem.Room != this.OnlineRooms[i])
+                { roomListItem.Room = this.OnlineRooms[i]; }
+            i++;
         }
     }
 
@@ -60,6 +61,14 @@ public class RunningGamesView : LiveMenuView {
             { PhotonManager.Instance.ConnectToPhoton(); }
 
         this.RefreshFlag = true;
+        this.JoinGameButton.interactable = false;
+    }
+
+    public override void Deactivate()
+    {
+        this.Deselect(this.SelectedRoom);
+        this.JoinGameButton.interactable = false;
+        base.Deactivate();
     }
 
     private void Refresh()
@@ -86,5 +95,21 @@ public class RunningGamesView : LiveMenuView {
         {
             throw new System.NotImplementedException();
         }
+    }
+
+    public void Select(RoomListItem room)
+    {
+        this.SelectedRoom = room;
+    }
+
+    public void Deselect(RoomListItem room)
+    {
+        if (this.SelectedRoom == room)
+            { this.SelectedRoom = null; }
+    }
+
+    public void JoinGame()
+    {
+        PhotonNetwork.JoinRoom(this.SelectedRoom.Room.name);
     }
 }
