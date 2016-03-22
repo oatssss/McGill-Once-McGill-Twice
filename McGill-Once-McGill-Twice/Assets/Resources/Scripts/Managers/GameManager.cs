@@ -227,9 +227,9 @@ public class GameManager : UnitySingletonPersistent<GameManager> {
     public void GenerateLevel(long seed)
     {
         // TODO : Generate the level asynchronously
-        SceneManager.LoadSceneAsync("World", LoadSceneMode.Additive);
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("World", LoadSceneMode.Additive);
 
-        StartCoroutine(SetSceneActiveDelayed(SceneManager.GetSceneByName("World")));
+        StartCoroutine(CallbackOnSceneLoad(asyncLoad, SceneManager.GetSceneByName("World")));
 
         // Afterwards, request this player's data from the master client to use in spawning
         /*Action loadFinished = () => {
@@ -243,12 +243,11 @@ public class GameManager : UnitySingletonPersistent<GameManager> {
         // throw new System.NotImplementedException();
     }
 
-    private IEnumerator SetSceneActiveDelayed(Scene scene)
+    private IEnumerator CallbackOnSceneLoad(AsyncOperation asyncLoad, Scene scene)
     {
-        while(!SceneManager.SetActiveScene(scene))
+        while(!asyncLoad.isDone)
             { yield return null; }
 
-        SceneManager.SetActiveScene(scene);
         this.OnLevelWasLoaded(scene.buildIndex);
     }
 

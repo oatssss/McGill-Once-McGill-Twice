@@ -938,7 +938,7 @@ ModelImporter:
     4300000: Circle.2451
     4300002: Cube.2339
   materials:
-    importMaterials: 1
+    importMaterials: 0
     materialName: 0
     materialSearch: 1
   animations:
