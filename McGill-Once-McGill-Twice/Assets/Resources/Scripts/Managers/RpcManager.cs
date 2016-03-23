@@ -26,12 +26,12 @@ public class RpcManager : PhotonSingletonPersistent<RpcManager> {
 
     public static void SendClearRpcBufferRequestToMaster(PhotonView photonView)
     {
-        Instance.photonView.RPC("ClearRpcAsMasterClient", PhotonTargets.MasterClient, photonView);
+        Instance.photonView.RPC("ClearRpcBufferAsMasterClient", PhotonTargets.MasterClient, photonView);
     }
 
     public static void SendClearRpcBufferRequestToMaster(PhotonPlayer photonPlayer)
     {
-        Instance.photonView.RPC("ClearRpcAsMasterClient", PhotonTargets.MasterClient, photonPlayer);
+        Instance.photonView.RPC("ClearRpcBufferAsMasterClient", PhotonTargets.MasterClient, photonPlayer);
     }
 
     [PunRPC]
@@ -82,6 +82,7 @@ public class RpcManager : PhotonSingletonPersistent<RpcManager> {
     [PunRPC]
     public void ClearRpcBufferAsMasterClient(PhotonPlayer photonPlayer)
     {
+        Debug.Log("CLEARING " + photonView.viewID);
         PhotonNetwork.RemoveRPCs(photonPlayer);
     }
 }

@@ -58,7 +58,7 @@ public class ConnectFourBoard : Photon.PunBehaviour {
     public void StartPlaying(PhotonPlayer A, PhotonPlayer B)
     {
         this.photonView.ClearRpcBufferAsMasterClient();    // We don't care about instructions in the buffer for previous games at this point
-        this.photonView.RPC("ResetBoard", PhotonTargets.AllBufferedViaServer);
+        this.photonView.RPC("ResetBoard", PhotonTargets.OthersBuffered);
         this.PlayerTurn = false;
 
         if (A.Equals(PhotonNetwork.player))
@@ -88,6 +88,7 @@ public class ConnectFourBoard : Photon.PunBehaviour {
             return;
         }
         this.photonView.RPC("ResetBoardForPlay", this.RemotePlayer);
+        this.ResetBoardForPlay(null);
         this.Playing = true;
         this.LocalSelectors[this.LocalSelectorIndex].Status = this.LocalColour;
     }
