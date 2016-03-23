@@ -50,7 +50,6 @@ public class PhotonManager : PUNSingletonPersistent<PhotonManager> {
         {
             PhotonNetwork.isMessageQueueRunning = false;
         }
-        PlayerManager.Respawn();
         PhotonNetwork.playerName = "Oats";
     }
 
