@@ -11,6 +11,7 @@ public abstract class Minigame : Photon.PunBehaviour
     [SerializeField] private Menu InfoMenu;
     [SerializeField] private MinigameZone Zone;
     [ReadOnly] public bool LocalPlayerJoined;
+    [ReadOnly] public bool Started;
     private Coroutine InteractForLobbyReturn = null;
 
     protected virtual void Awake()
@@ -41,8 +42,17 @@ public abstract class Minigame : Photon.PunBehaviour
     /// </summary>
     public void StartGame()
     {
-        // TODO : Check if start is valid for number of members
-        this.photonView.RPC("StartGame", PhotonTargets.AllBufferedViaServer);
+        if (this.ValidToStart())
+            { this.photonView.RPC("StartGame", PhotonTargets.AllBufferedViaServer); }
+        else
+            { this.DisplayStartingError(); }
+    }
+
+    protected abstract bool ValidToStart();
+
+    protected virtual void DisplayStartingError()
+    {
+        GUIManager.Instance.ShowTooltip("Unable to start game.");
     }
 
     /// <summary>
@@ -53,7 +63,10 @@ public abstract class Minigame : Photon.PunBehaviour
     [PunRPC]
     protected virtual void StartGame(PhotonMessageInfo info)
     {
-        GUIManager.ShowMinigameUI(this);
+        this.Started = true;
+
+        if (this.LocalPlayerJoined)
+            { GUIManager.ShowMinigameUI(this); }
     }
 
     /// <summary>
@@ -64,6 +77,8 @@ public abstract class Minigame : Photon.PunBehaviour
     [PunRPC]
     protected void ResetGame(PhotonMessageInfo info)
     {
+        this.Started = false;
+
         foreach (MinigameTeamContainer team in this.TeamContainers)
         {
             team.Team.ResetTeam();
@@ -163,7 +178,7 @@ public abstract class Minigame : Photon.PunBehaviour
     {
         PlayerManager.Instance.JoinedTeam = true;
         this.LocalPlayerJoined = true;
-        CameraManager.SetViewLookAngleMax(90f);
+        // CameraManager.SetViewLookAngleMax(90f);
         PlayerManager.DisableUserControls();
         this.ReturnToMinigameLobby();
     }
@@ -181,7 +196,10 @@ public abstract class Minigame : Photon.PunBehaviour
     /// </summary>
     public void RemovePlayer()
     {
-        this.RemovePlayer(PhotonNetwork.player);
+        if (!this.Started)
+            { this.RemovePlayer(PhotonNetwork.player); }
+        else
+            { this.DisplayLeavingError(); }
     }
 
     /// <summary>
@@ -194,7 +212,7 @@ public abstract class Minigame : Photon.PunBehaviour
     /// <param name="info"> The info provided by the RPC sender (sender should always be the MasterClient).
     /// </param>
     [PunRPC]
-    protected void RemovePlayer(PhotonPlayer player, PhotonMessageInfo info)
+    protected virtual void RemovePlayer(PhotonPlayer player, PhotonMessageInfo info)
     {
         // A recently disconnected player may still have a RemovePlayer RPC buffered for new joining players, in this case, the new joining player will be trying to remove a null player
         if (player == null)

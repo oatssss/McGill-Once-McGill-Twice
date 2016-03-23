@@ -61,4 +61,9 @@ public class BeerPongMinigame : TurnBasedMinigame
     {
         throw new NotImplementedException();
     }
+
+    protected override bool ValidToStart()
+    {
+        throw new NotImplementedException();
+    }
 }

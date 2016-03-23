@@ -8,8 +8,8 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
 
     public static readonly float FadeDuration = 1f;
 
-    private bool GamePaused = false;
-    private Menu CurrentMenu;
+    private bool GamePaused;
+    public Menu CurrentMenu { get; private set; }
     private Stack<Menu> History = new Stack<Menu>();
     private enum TRANSITION { STACK, NOSTACK, CLOSE }
 
@@ -41,7 +41,10 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
 
     void Start()
     {
-        MajorFadeToClear(() => this.OpenMenu(this.StartupMenu));
+        if (!GameManager.Instance.DebugMode)
+            { MajorFadeToClear(() => this.OpenMenu(this.StartupMenu)); }
+        else
+            { MajorFadeToClear(null); }
     }
 
     void OnGUI()
@@ -134,26 +137,28 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
     {
         // Make use of a currentUI
 
-        throw new NotImplementedException();
+        Debug.Log("SHOW MINIGAME JOINED UI NOT IMPLEMENTED");
+        // throw new NotImplementedException();
     }
 
     public static void ShowMinigameUI(Minigame minigame)
     {
         // Make use of a currentUI
-
-        throw new NotImplementedException();
+        Debug.Log("SHOW MINIGAME UI NOT IMPLEMENTED");
+        // throw new NotImplementedException();
     }
 
     public static void ShowFreeRoamUI()
     {
         // Make use of a currentUI
-
-        throw new NotImplementedException();
+        Debug.Log("SHOW FREE ROAM UI NOT IMPLEMENTED");
+        // throw new NotImplementedException();
     }
 
     public static void HideCurrentUI()
     {
-        throw new NotImplementedException();
+        Debug.Log("HIDE CURRENT UI NOT IMPLEMENTED");
+        // throw new NotImplementedException();
     }
 
     private void OpenMenu(Menu menu, TRANSITION transition)
@@ -179,6 +184,9 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
 
     public void OpenMenu(Menu menu, bool useHistory)
     {
+        if (this.CurrentMenu == menu)
+            { return; }
+
         if (useHistory)
             { Instance.OpenMenu(menu, TRANSITION.STACK); }
         else

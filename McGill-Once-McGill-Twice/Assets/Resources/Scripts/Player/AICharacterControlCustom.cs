@@ -7,7 +7,7 @@ public class AICharacterControlCustom : MonoBehaviour
     public NavMeshAgent agent { get; private set; } // the navmesh agent required for the path finding
     public ThirdPersonCharacterCustom character { get; private set; } // the character we are controlling
     public Transform target; // target to aim for
-    
+
     public delegate void DestinationReachedHandler();
     private DestinationReachedHandler DestinationReached;
     private bool _Delay;
@@ -32,14 +32,14 @@ public class AICharacterControlCustom : MonoBehaviour
     {
         //  Agent's speed should never be over 1.0
         agent.speed = Mathf.Clamp01(agent.speed);
-        
+
         if (target != null)
         {
             agent.SetDestination(target.position);
             if (!Delay && !agent.pathPending && agent.remainingDistance <= (agent.stoppingDistance - float.Epsilon))
             {
                 if (DestinationReached != null) DestinationReached();
-                
+
                 // The nav agent doesn't work well unless there's a few frames of delay, DestinationReached may have set a delay
                 if (!Delay) target = null;
             }
@@ -54,7 +54,7 @@ public class AICharacterControlCustom : MonoBehaviour
             // We still need to call the character's move function, but we send zeroed input as the move param.
             character.Move(Vector3.zero, false, false);
         }
-        
+
         // Deal with the nav mesh's bug
         if (Delay && DelayCounter++ < 5)
             { /* Sustain the delay */}
@@ -65,11 +65,13 @@ public class AICharacterControlCustom : MonoBehaviour
 
     public void SetTarget(Transform target)
     {
+        this.agent.enabled = true;
+        this.enabled = true;
         this.DestinationReached = null;
         this.target = target;
         Delay = true;
     }
-    
+
     public void SetTarget(Transform target, DestinationReachedHandler callback)
     {
         SetTarget(target);

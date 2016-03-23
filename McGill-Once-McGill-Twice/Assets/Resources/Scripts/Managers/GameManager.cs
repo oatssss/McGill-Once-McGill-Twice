@@ -72,6 +72,7 @@ public class GameManager : UnitySingletonPersistent<GameManager> {
 
     public GameState SessionState = new GameState();
     private UserSettings Settings;
+    public bool DebugMode;
 
     void Start()
     {
@@ -307,5 +308,15 @@ public class GameManager : UnitySingletonPersistent<GameManager> {
     public void HostGame(SavedGameItem savedGameItem)
     {
         this.HostGame(savedGameItem, false);
+    }
+
+    public void PauseTime()
+    {
+        Time.timeScale = 0;
+    }
+
+    public void ResumeTime()
+    {
+        Time.timeScale = 1;
     }
 }

@@ -1,11 +1,13 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections.Generic;
 using ExtensionMethods;
 
 public class ConnectFourBoard : Photon.PunBehaviour {
 
     [SerializeField] private Minigame ParentMinigame;
-    [SerializeField] private bool SingleSided;
+    [SerializeField] private bool singleSided;
+    public bool SingleSided { get { return this.singleSided; } private set { this.singleSided = value; } }
     private bool LocalSideB = false;
     private PhotonPlayer RemotePlayer;
     private ConnectFourSlot.Colour LocalColour;
@@ -67,6 +69,8 @@ public class ConnectFourBoard : Photon.PunBehaviour {
             this.RemoteColour = ConnectFourSlot.Colour.Red;
             this.LocalSelectors = SelectorsA;
             this.RemoteSelectors = SelectorsB;
+            if (this.SingleSided)
+                { Array.Reverse(this.RemoteSelectors); }
         }
         else if (B.Equals(PhotonNetwork.player))
         {
@@ -76,12 +80,14 @@ public class ConnectFourBoard : Photon.PunBehaviour {
             this.RemoteColour = ConnectFourSlot.Colour.Black;
             this.LocalSelectors = SelectorsB;
             this.RemoteSelectors = SelectorsA;
+            if (this.SingleSided)
+                { Array.Reverse(this.LocalSelectors); }
         }
         else    // This game is starting, but the local player isn't one of the players
         {
             return;
         }
-
+        this.photonView.RPC("ResetBoardForPlay", this.RemotePlayer);
         this.Playing = true;
         this.LocalSelectors[this.LocalSelectorIndex].Status = this.LocalColour;
     }
@@ -100,7 +106,7 @@ public class ConnectFourBoard : Photon.PunBehaviour {
         else
         {
             // Disable current selector, enable selector to left
-            this.LocalSelectors[LocalSelectorIndex].Status = ConnectFourSlot.Colour.Empty;
+            this.LocalSelectors[this.LocalSelectorIndex].Status = ConnectFourSlot.Colour.Empty;
             this.LocalSelectors[this.LocalSelectorIndex - 1].Status = this.LocalColour;
 
             // Tell opposing player that our selection has moved left
@@ -117,7 +123,7 @@ public class ConnectFourBoard : Photon.PunBehaviour {
         else
         {
             // Disable current selector, enable selector to right
-            this.LocalSelectors[LocalSelectorIndex].Status = ConnectFourSlot.Colour.Empty;
+            this.LocalSelectors[this.LocalSelectorIndex].Status = ConnectFourSlot.Colour.Empty;
             this.LocalSelectors[this.LocalSelectorIndex + 1].Status = this.LocalColour;
 
             // Tell opposing player that our selection has moved right
@@ -128,39 +134,29 @@ public class ConnectFourBoard : Photon.PunBehaviour {
     [PunRPC]
     private void RemoteMoveSelectionLeft(int currentRemoteSelectorIndex, PhotonMessageInfo info)
     {
+        Debug.Log("REMOTE INDEX PRIOR TO MOVE LEFT: " + currentRemoteSelectorIndex);
         if (currentRemoteSelectorIndex <= 0)
         {
             Debug.LogErrorFormat("{0} attempted to move the connect four move selector left from index {1} which would be out of bounds.", info.sender, currentRemoteSelectorIndex);
             return;
         }
 
-        int leftIndexRemote = currentRemoteSelectorIndex;
-        if (this.SingleSided)
-            { leftIndexRemote++; }
-        else
-            { leftIndexRemote--; }
-
         this.RemoteSelectors[currentRemoteSelectorIndex].Status = ConnectFourSlot.Colour.Empty;
-        this.RemoteSelectors[leftIndexRemote].Status = this.RemoteColour;
+        this.RemoteSelectors[currentRemoteSelectorIndex - 1].Status = this.RemoteColour;
     }
 
     [PunRPC]
     private void RemoteMoveSelectionRight(int currentRemoteSelectorIndex, PhotonMessageInfo info)
     {
+        Debug.Log("REMOTE INDEX PRIOR TO MOVE RIGHT: " + currentRemoteSelectorIndex);
         if (currentRemoteSelectorIndex >= this.RemoteSelectors.Length-1)
         {
             Debug.LogErrorFormat("{0} attempted to move the connect four move selector right from index {1} which would be out of bounds.", info.sender, currentRemoteSelectorIndex);
             return;
         }
 
-        int rightIndexRemote = currentRemoteSelectorIndex;
-        if (this.SingleSided)
-            { rightIndexRemote--; }
-        else
-            { rightIndexRemote++; }
-
         this.RemoteSelectors[currentRemoteSelectorIndex].Status = ConnectFourSlot.Colour.Empty;
-        this.RemoteSelectors[rightIndexRemote].Status = this.RemoteColour;
+        this.RemoteSelectors[currentRemoteSelectorIndex + 1].Status = this.RemoteColour;
     }
 
     private void AcceptMove()
@@ -384,6 +380,32 @@ public class ConnectFourBoard : Photon.PunBehaviour {
         }
 
         this.LocalSelectorIndex = 0;
+    }
+
+    [PunRPC]
+    private void ResetBoardForPlay(PhotonMessageInfo info)
+    {
+        this.LocalSelectorIndex = 0;
+
+        foreach (ConnectFourSlot slot in this.Slots)
+        {
+            slot.Status = ConnectFourSlot.Colour.Empty;
+            slot.Highlight(false);
+        }
+
+        foreach (ConnectFourSlot selector in this.LocalSelectors)
+        {
+            selector.Status = ConnectFourSlot.Colour.Empty;
+            selector.Highlight(false);
+        }
+        this.LocalSelectors[0].Status = this.LocalColour;
+
+        foreach (ConnectFourSlot selector in this.RemoteSelectors)
+        {
+            selector.Status = ConnectFourSlot.Colour.Empty;
+            selector.Highlight(false);
+        }
+        this.RemoteSelectors[0].Status = this.RemoteColour;
     }
 
     void Update()

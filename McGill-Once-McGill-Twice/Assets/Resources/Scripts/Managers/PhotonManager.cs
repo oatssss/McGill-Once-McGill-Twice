@@ -30,29 +30,35 @@ public class PhotonManager : PUNSingletonPersistent<PhotonManager> {
         GUIManager.Instance.ShowTooltip("You were disconnected (" + cause + ").");
     }
 
-    /*
     public override void OnJoinedLobby()
     {
-        // PhotonNetwork.JoinRandomRoom();
+        if (GameManager.Instance.DebugMode)
+        {
+            PhotonNetwork.JoinRandomRoom();
+        }
     }
-
 
     public void OnPhotonRandomJoinFailed()
     {
-        Debug.Log("Can't join random room!");
         PhotonNetwork.CreateRoom(null);
     }
-    */
+
 
     public override void OnJoinedRoom()
     {
-        PhotonNetwork.isMessageQueueRunning = false;
-        // PlayerManager.Respawn();
+        if (!GameManager.Instance.DebugMode)
+        {
+            PhotonNetwork.isMessageQueueRunning = false;
+        }
+        PlayerManager.Respawn();
         PhotonNetwork.playerName = "Oats";
     }
 
     public override void OnCreatedRoom()
     {
-        GameManager.Instance.InitializeHostGame();
+        if (!GameManager.Instance.DebugMode)
+        {
+            GameManager.Instance.InitializeHostGame();
+        }
     }
 }
