@@ -35,13 +35,13 @@ public class ConnectFourMinigame : Minigame
         if (onTeamA)
         {
             // Walk player to designated spot for A
-            PlayerManager.GetMainPlayer(true).ThirdPersonCharacter.AIController.SetTarget(this.PlayerSpotA.transform);
+            PlayerManager.GetMainPlayer().ThirdPersonCharacter.AIController.SetTarget(this.PlayerSpotA.transform);
         }
         // Otherwise join as B
         else
         {
             // Walk player to designated spot for B
-            PlayerManager.GetMainPlayer(true).ThirdPersonCharacter.AIController.SetTarget(this.PlayerSpotB.transform);
+            PlayerManager.GetMainPlayer().ThirdPersonCharacter.AIController.SetTarget(this.PlayerSpotB.transform);
         }
     }
 
@@ -65,12 +65,14 @@ public class ConnectFourMinigame : Minigame
 
     protected override void HandleRemotePlayerLeaveDetails(MinigameTeam team, PhotonPlayer player)
     {
-        if (this.Board.Playing)
-        {
-            this.Board.StopPlaying();
-            this.DisplayEarlyGameTermination(team, player);
-            this.ReturnToMinigameLobby();    // Return to lobby after early game termination is dismissed
-        }
+        this.DisplayEarlyGameTermination(team, player);
+        this.ReturnToMinigameLobby();
+    }
+
+    protected override void ReturnToMinigameLobby()
+    {
+        this.Board.StopPlaying();
+        base.ReturnToMinigameLobby();
     }
 
     private void DisplayEarlyGameTermination(MinigameTeam team, PhotonPlayer player)
@@ -79,17 +81,19 @@ public class ConnectFourMinigame : Minigame
     }
 
     [PunRPC]
-    protected override void StartGame(PhotonMessageInfo info)
+    protected override bool StartGame(PhotonMessageInfo info)
     {
-        base.StartGame(info);
-        // Pure start, checks and UI have already been handled
+        if (!base.StartGame(info))
+            { return false; }
 
-        CameraManager.SetViewLookAngleMax(90f);
+        // Pure start after this point, checks and UI have already been handled
+        // CameraManager.SetViewLookAngleMax(90f);
         IEnumerator<PhotonPlayer> iterateA = this.TeamContainerA.Team.GetEnumerator();
         IEnumerator<PhotonPlayer> iterateB = this.TeamContainerB.Team.GetEnumerator();
         iterateA.MoveNext();    // A newly acquired enumerator points to just before the first element
         iterateB.MoveNext();
         this.Board.StartPlaying(iterateA.Current, iterateB.Current);
+        return true;
     }
 
     protected override bool ValidToStart()

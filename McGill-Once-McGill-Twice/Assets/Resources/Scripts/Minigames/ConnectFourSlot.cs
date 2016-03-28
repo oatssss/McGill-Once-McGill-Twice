@@ -32,6 +32,7 @@ public class ConnectFourSlot : MonoBehaviour
 
     public void Highlight(bool highlight)
     {
-        HighlightManager.Instance.Highlight(this.gameObject, highlight);
+        // Only the child gameobjects have mesh renderers
+        HighlightManager.Instance.Highlight(this.transform.GetChild(0).gameObject, highlight);
     }
 }

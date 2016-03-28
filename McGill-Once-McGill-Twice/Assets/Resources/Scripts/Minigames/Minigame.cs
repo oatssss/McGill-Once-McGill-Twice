@@ -16,7 +16,8 @@ public abstract class Minigame : Photon.PunBehaviour
 
     protected virtual void Awake()
     {
-
+        // Only update when the player has joined the game
+        this.enabled = false;
     }
 
     /// <summary>
@@ -24,7 +25,6 @@ public abstract class Minigame : Photon.PunBehaviour
     /// </summary>
     public void DisplayInstructions()
     {
-        // this.InstructionMenu.Open();
         GUIManager.Instance.OpenMenu(this.InstructionMenu);
     }
 
@@ -33,7 +33,6 @@ public abstract class Minigame : Photon.PunBehaviour
     /// </summary>
     public void DisplayGameInfo()
     {
-        // this.InfoMenu.Open();
         GUIManager.Instance.OpenMenu(this.InfoMenu);
     }
 
@@ -42,10 +41,7 @@ public abstract class Minigame : Photon.PunBehaviour
     /// </summary>
     public void StartGame()
     {
-        if (this.ValidToStart())
-            { this.photonView.RPC("StartGame", PhotonTargets.AllBufferedViaServer); }
-        else
-            { this.DisplayStartingError(); }
+        this.photonView.RPC("StartGame", PhotonTargets.AllBufferedViaServer);
     }
 
     protected abstract bool ValidToStart();
@@ -61,12 +57,26 @@ public abstract class Minigame : Photon.PunBehaviour
     /// <param name="info"> The info provided by the RPC sender (sender should always be the MasterClient).
     /// </param>
     [PunRPC]
-    protected virtual void StartGame(PhotonMessageInfo info)
+    protected virtual bool StartGame(PhotonMessageInfo info)
     {
+        // Make sure the game is valid to start
+        if (!this.ValidToStart())
+        {
+            if (this.LocalPlayerJoined)
+                { this.DisplayStartingError(); }
+
+            return false;
+        }
+
         this.Started = true;
 
         if (this.LocalPlayerJoined)
-            { GUIManager.ShowMinigameUI(this); }
+        {
+            GUIManager.Instance.CloseMenuIfOpen(this.InfoMenu);
+            GUIManager.ShowMinigameUI(this);
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -98,7 +108,7 @@ public abstract class Minigame : Photon.PunBehaviour
 
     private IEnumerator InteractToReturnToLobby()
     {
-        while (!CustomInputManager.GetButtonDown("Interact Main"))
+        while (!CustomInputManager.GetButtonDown("Interact Main", CustomInputManager.InputMode.Gameplay))
         {
             // Show UI requesting interact to return to lobby
             GUIManager.Instance.ShowTooltip("Press E to continue.", GUIManager.TOOL_TIP_DURATION.INSTANTANEOUS);
@@ -116,6 +126,7 @@ public abstract class Minigame : Photon.PunBehaviour
             this.InteractForLobbyReturn = null;
         }
         GUIManager.ShowMinigameJoinedUI(this);
+        // TODO : Enable tab menu
     }
 
     /// <summary>
@@ -179,8 +190,9 @@ public abstract class Minigame : Photon.PunBehaviour
         PlayerManager.Instance.JoinedTeam = true;
         this.LocalPlayerJoined = true;
         // CameraManager.SetViewLookAngleMax(90f);
-        PlayerManager.DisableUserControls();
+        PlayerManager.DisableUserMovement();
         this.ReturnToMinigameLobby();
+        this.enabled = true;
     }
 
     /// <summary>
@@ -196,10 +208,7 @@ public abstract class Minigame : Photon.PunBehaviour
     /// </summary>
     public void RemovePlayer()
     {
-        if (!this.Started)
-            { this.RemovePlayer(PhotonNetwork.player); }
-        else
-            { this.DisplayLeavingError(); }
+        this.RemovePlayer(PhotonNetwork.player);
     }
 
     /// <summary>
@@ -269,10 +278,11 @@ public abstract class Minigame : Photon.PunBehaviour
     /// </param>
     protected virtual void LocalPlayerLeave()
     {
+        this.enabled = false;
         PlayerManager.Instance.JoinedTeam = false;
         this.LocalPlayerJoined = false;
         CameraManager.SetViewToPlayer();
-        PlayerManager.EnableUserControls();
+        PlayerManager.EnableUserMovement();
         GUIManager.ShowFreeRoamUI();
         this.EnableZone();
     }
@@ -322,8 +332,14 @@ public abstract class Minigame : Photon.PunBehaviour
         // If the disconnecting player belonged to a team, remove them from that team
         if (correspondingTeamContainer)
         {
-            MinigameTeam team = correspondingTeamContainer.Team;
+            // MinigameTeam team = correspondingTeamContainer.Team;
             this.RemovePlayer(otherPlayer, null);
         }
+    }
+
+    public virtual void Update()
+    {
+        if (CustomInputManager.GetButtonDown("Minigame Menu", CustomInputManager.InputMode.Gameplay))
+            { GUIManager.Instance.OpenMenu(this.InfoMenu); }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using ExtensionMethods;
 
 public class PlayerManager : UnitySingletonPersistent<PlayerManager> {
@@ -12,7 +13,7 @@ public class PlayerManager : UnitySingletonPersistent<PlayerManager> {
     /// <summary>Retrieves the Player script for the client's player.</summary>
     /// <param name="logErrors">Should an error be logged if retrieving the player is unsuccessful?</param>
     /// <returns>The Player script of the main player.</returns>
-    public static Player GetMainPlayer(bool logErrors)
+    public static Player GetMainPlayer(bool logErrors = true)
     {
         if (MainPlayer == null)
         {
@@ -27,7 +28,7 @@ public class PlayerManager : UnitySingletonPersistent<PlayerManager> {
                 }
             }
 
-            if (logErrors)
+            if (logErrors && SceneManager.GetActiveScene().name != "Launch")
                 { Debug.LogErrorFormat("{0} could not obtain the player's script.", Instance); }
 
             return null;
@@ -36,13 +37,6 @@ public class PlayerManager : UnitySingletonPersistent<PlayerManager> {
         {
             return MainPlayer;
         }
-    }
-
-    /// <summary>Retrieves the Player script for the client's player. Log's an error if unsuccessful.</summary>
-    /// <returns>The Player script of the main player.</returns>
-    public static Player GetMainPlayer()
-    {
-        return GetMainPlayer(true);
     }
 
     /// <summary>Respawns the player.</summary>
@@ -59,7 +53,7 @@ public class PlayerManager : UnitySingletonPersistent<PlayerManager> {
         // playerObject.AddComponent<AICharacterControlCustom>();
 
         MainPlayer = playerObject.GetComponent<Player>();
-        MainPlayer.ThirdPersonCharacter.EnableUserControls();
+        MainPlayer.ThirdPersonCharacter.EnableUserMovement();
 
         PhotonNetwork.player.TagObject = MainPlayer;
 
@@ -118,14 +112,20 @@ public class PlayerManager : UnitySingletonPersistent<PlayerManager> {
         }
     }
 
-    public static void EnableUserControls()
+    public static void EnableUserMovement()
     {
-        MainPlayer.ThirdPersonCharacter.EnableUserControls();
+        Player player = GetMainPlayer();
+
+        if (player)
+            { player.ThirdPersonCharacter.EnableUserMovement(); }
     }
 
-    public static void DisableUserControls()
+    public static void DisableUserMovement()
     {
-        MainPlayer.ThirdPersonCharacter.DisableUserControls();
+        Player player = GetMainPlayer();
+
+        if (player)
+            { MainPlayer.ThirdPersonCharacter.DisableUserMovement(); }
     }
 
     public static void EnableAIControls()

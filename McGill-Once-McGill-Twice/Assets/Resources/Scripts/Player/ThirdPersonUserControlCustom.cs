@@ -11,7 +11,6 @@ public class ThirdPersonUserControlCustom : MonoBehaviour
     private Vector3 m_Move;
     private bool m_Jump;                      // the world-relative desired move direction, calculated from the camForward and user input.
 
-    
     private void OnEnable()
     {
         // get the transform of the main camera
@@ -60,7 +59,7 @@ public class ThirdPersonUserControlCustom : MonoBehaviour
             // we use world-relative directions in the case of no main camera
             m_Move = v*Vector3.forward + h*Vector3.right;
         }
-        
+
 #if !MOBILE_INPUT
         // walk speed multiplier and clamp
         if (Input.GetKey(KeyCode.LeftShift))

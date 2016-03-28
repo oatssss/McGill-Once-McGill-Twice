@@ -25,7 +25,7 @@ public abstract class TransitionTeleport : MonoBehaviour {
     {
         GUIManager.Instance.ShowTooltip(this.TooltipText, GUIManager.TOOL_TIP_DURATION.INSTANTANEOUS);
 
-        if (CustomInputManager.GetButtonDown("Interact Main"))
+        if (CustomInputManager.GetButtonDown("Interact Main", CustomInputManager.InputMode.Gameplay))
         {
             Transition(other.GetComponent<ThirdPersonCharacterCustom>());
         }
@@ -60,7 +60,7 @@ public abstract class TransitionTeleport : MonoBehaviour {
         CameraManager.SetViewLookAngleMax(this.EntranceCameraPosition.forward, 45f);
 
         //  The AI will walk the player
-        player.DisableUserControls();
+        player.DisableUserMovement();
         player.EnableAIControls();
 
         Action walkFromSpawn = () => {
@@ -70,7 +70,7 @@ public abstract class TransitionTeleport : MonoBehaviour {
 
                 player.DisableAIControls(false);
                 finishTransition(player);
-                player.EnableUserControls();
+                player.EnableUserMovement();
             });
         };
 
@@ -101,12 +101,12 @@ public abstract class TransitionTeleport : MonoBehaviour {
 
     private void FadeToBlack(Action callback)
     {
-        GUIManager.MinorFadeToBlack(callback);
+        GUIManager.FadeMinorToBlack(callback);
     }
 
     private void FadeToClear(Action callback)
     {
-        GUIManager.MinorFadeToClear(callback);
+        GUIManager.FadeMinorToClear(callback);
     }
 
     protected abstract void PrepareTransition(ThirdPersonCharacterCustom player);

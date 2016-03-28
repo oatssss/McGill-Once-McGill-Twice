@@ -6,7 +6,7 @@ using UnityEngine;
 [RequireComponent(typeof(ThirdPersonUserControlCustom))]
 [RequireComponent(typeof(AICharacterControlCustom))]
 public class ThirdPersonCharacterCustom : MonoBehaviour
-{    
+{
     [SerializeField] float m_MovingTurnSpeed = 360;
     [SerializeField] float m_StationaryTurnSpeed = 180;
     [SerializeField] float m_JumpPower = 12f;
@@ -36,7 +36,7 @@ public class ThirdPersonCharacterCustom : MonoBehaviour
     {
         UserController = GetComponent<ThirdPersonUserControlCustom>();
         AIController = GetComponent<AICharacterControlCustom>();
-        
+
         m_Animator = GetComponent<Animator>();
         m_Rigidbody = GetComponent<Rigidbody>();
         m_Capsule = GetComponent<CapsuleCollider>();
@@ -50,7 +50,6 @@ public class ThirdPersonCharacterCustom : MonoBehaviour
 
     public void Move(Vector3 move, bool crouch, bool jump)
     {
-
         // convert the world relative moveInput vector into a local-relative
         // turn amount and forward amount required to head in the desired
         // direction.
@@ -225,63 +224,75 @@ public class ThirdPersonCharacterCustom : MonoBehaviour
             m_Animator.applyRootMotion = false;
         }
     }
-    
-    public void DisableUserControls()
+
+    public void DisableUserMovement()
     {
         if (this.UserController == null)
         {
             Debug.LogErrorFormat("{0} does not have a user control script; cannot disable user controls.", gameObject);
             return;
         }
-        
+
         //  Disable user controller script and reset the player's movement to zero, standing, not jumping
         this.UserController.enabled = false;
-        Move(Vector3.zero, false, false);
     }
-    
-    public void EnableUserControls()
+
+    public void EnableUserMovement()
     {
+        //  Don't enable if pause menu is open
+        if (GUIManager.Instance.GamePaused)
+            { return; }
+
         //  Disable any existing AI controller, but don't log errors
         DisableAIControls(false);
-        
+
         //  Enable the user controls
         if (this.UserController == null)
         {
             Debug.LogErrorFormat("{0} does not have a user control script; cannot enable user controls.", gameObject);
             return;
         }
-        
+
         this.UserController.enabled = true;
     }
-    
+
     public void DisableAIControls(bool logErrors)
     {
         if (this.AIController == null)
         {
             if (logErrors)
                 { Debug.LogErrorFormat("{0} does not have an AI control script; cannot disable AI controls.", gameObject); }
-            
+
             return;
         }
-        
+
         this.AIController.agent.enabled = false;
         this.AIController.enabled = false;
-        Move(Vector3.zero, false, false);
     }
-    
+
     public void EnableAIControls()
     {
+        //  Don't enable if pause menu is open
+        if (GUIManager.Instance.GamePaused)
+            { return; }
+
         //  Don't allow user controls while AI controls are on
-        DisableUserControls();
-        
+        DisableUserMovement();
+
         if (this.AIController == null)
         {
             Debug.LogErrorFormat("{0} does not have an AI control script; cannot enable AI controls.", gameObject);
-            return; 
+            return;
         }
-        
+
         this.AIController.agent.enabled = true;
         this.AIController.enabled = true;
         this.AIController.SetTarget(null);
+    }
+
+    void Update()
+    {
+        if (!this.AIController.enabled && !this.UserController.enabled)
+            { Move(Vector3.zero, false, false); }
     }
 }

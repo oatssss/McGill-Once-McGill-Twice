@@ -32,4 +32,5 @@ public class GameConstants {
     public static readonly string KEY_SEED = "s";
 
     public static readonly float TRANSITION_SPEED_MULTIPLIER = 7f;
+    public static readonly float DELAYED_INPUT_SWITCH_DURATION = 0.2f;
 }

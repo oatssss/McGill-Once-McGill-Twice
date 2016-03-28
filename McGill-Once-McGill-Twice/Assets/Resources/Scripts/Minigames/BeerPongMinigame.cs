@@ -42,7 +42,7 @@ public class BeerPongMinigame : TurnBasedMinigame
         throw new NotImplementedException();
     }
 
-    protected override void StartGame(PhotonMessageInfo info)
+    protected override bool StartGame(PhotonMessageInfo info)
     {
         throw new NotImplementedException();
     }

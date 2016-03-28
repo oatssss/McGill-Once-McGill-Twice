@@ -10,7 +10,7 @@ public class HighlightManager : UnitySingletonPersistent<HighlightManager> {
 
 	public string m_occludeesTag = "Occludee";
 	public string m_occludersTag = "Occluder";
-	public Color m_highlightColor = new Color(1f, 0f, 0f, 0.65f);
+	public Color m_highlightColor = new Color(1f, 1f, 0f, 1f);
 
 	public Shader m_highlightShader;
 

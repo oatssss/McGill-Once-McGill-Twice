@@ -71,6 +71,7 @@ public class ConnectFourBoard : Photon.PunBehaviour {
             this.RemoteSelectors = SelectorsB;
             if (this.SingleSided)
                 { Array.Reverse(this.RemoteSelectors); }
+            this.PlayerTurn = true;
         }
         else if (B.Equals(PhotonNetwork.player))
         {
@@ -193,30 +194,31 @@ public class ConnectFourBoard : Photon.PunBehaviour {
         }
 
         this.PlayerTurn = false;
-        this.photonView.RPC("ModifySlot", PhotonTargets.AllBufferedViaServer, slotColumn, slotRow, this.LocalColour);
+        this.photonView.RPC("ModifySlot", PhotonTargets.AllBufferedViaServer, slotColumn, slotRow, (int)this.LocalColour);
     }
 
     [PunRPC]
-    private void ModifySlot(int slotColumn, int slotRow, ConnectFourSlot.Colour colour, PhotonMessageInfo info)
+    private void ModifySlot(int slotColumn, int slotRow, int colour, PhotonMessageInfo info)
     {
-        this.Slots[slotColumn,slotRow].Status = colour;
+        ConnectFourSlot.Colour colourEnum = (ConnectFourSlot.Colour) colour;
+        this.Slots[slotColumn,slotRow].Status = (ConnectFourSlot.Colour)colour;
 
         // Don't check for wins if the slot was set to empty
-        if (colour == ConnectFourSlot.Colour.Empty)
+        if (colourEnum == ConnectFourSlot.Colour.Empty)
             { return; }
 
         bool winner = false;
-        winner |= this.CheckHorizontalWin(slotColumn, slotRow, colour);
-        winner |= this.CheckVerticalWin(slotColumn, slotRow, colour);
-        winner |= this.CheckTLBRDiagonalWin(slotColumn, slotRow, colour);
-        winner |= this.CheckTRBLDiagonalWin(slotColumn, slotRow, colour);
+        winner |= this.CheckHorizontalWin(slotColumn, slotRow, colourEnum);
+        winner |= this.CheckVerticalWin(slotColumn, slotRow, colourEnum);
+        winner |= this.CheckTLBRDiagonalWin(slotColumn, slotRow, colourEnum);
+        winner |= this.CheckTRBLDiagonalWin(slotColumn, slotRow, colourEnum);
 
         if (winner && this.Playing)
         {
             this.StopPlaying();
             this.ParentMinigame.RequireInteractForLobby();
         }
-        else if (colour != this.LocalColour)
+        else if (colourEnum != this.LocalColour)
         {
             this.PlayerTurn = true;
         }
@@ -232,6 +234,7 @@ public class ConnectFourBoard : Photon.PunBehaviour {
         {
             winningSlots.Add(slot);
             col++;
+            slot = col < Columns ? this.Slots[col,slotRow] : null;
         }
 
         col = slotColumn - 1;       // Check towards the left now
@@ -240,6 +243,7 @@ public class ConnectFourBoard : Photon.PunBehaviour {
         {
             winningSlots.Add(slot);
             col--;
+            slot = col >= 0 ? this.Slots[col,slotRow] : null;
         }
 
         if (winningSlots.Count >= 4)
@@ -261,6 +265,7 @@ public class ConnectFourBoard : Photon.PunBehaviour {
         {
             winningSlots.Add(slot);
             row++;
+            slot = row < Rows ? this.Slots[slotColumn,row] : null;
         }
 
         row = slotRow - 1;       // Check towards the bottom now
@@ -269,6 +274,7 @@ public class ConnectFourBoard : Photon.PunBehaviour {
         {
             winningSlots.Add(slot);
             row--;
+            slot = row >= 0 ? this.Slots[slotColumn,row] : null;
         }
 
         if (winningSlots.Count >= 4)
@@ -293,6 +299,7 @@ public class ConnectFourBoard : Photon.PunBehaviour {
             winningSlots.Add(slot);
             row++;
             col--;
+            slot = (row < Rows && col >= 0) ? this.Slots[col,row] : null;
         }
 
         row = slotRow - 1;       // Check towards the bottom right now
@@ -303,6 +310,7 @@ public class ConnectFourBoard : Photon.PunBehaviour {
             winningSlots.Add(slot);
             row--;
             col++;
+            slot = (row >= 0 && col < Columns) ? this.Slots[col,row] : null;
         }
 
         if (winningSlots.Count >= 4)
@@ -327,6 +335,7 @@ public class ConnectFourBoard : Photon.PunBehaviour {
             winningSlots.Add(slot);
             row++;
             col++;
+            slot = (row < Rows && col < Columns) ? this.Slots[col,row] : null;
         }
 
         row = slotRow - 1;       // Check towards the bottom left now
@@ -337,6 +346,7 @@ public class ConnectFourBoard : Photon.PunBehaviour {
             winningSlots.Add(slot);
             row--;
             col--;
+            slot = (row >= 0 && col >= 0) ? this.Slots[col,row] : null;
         }
 
         if (winningSlots.Count >= 4)
@@ -414,13 +424,13 @@ public class ConnectFourBoard : Photon.PunBehaviour {
         if (!this.Playing)
             { return; }
 
-        if (CustomInputManager.GetButtonDown("Left"))
+        if (CustomInputManager.GetButtonDown("Left", CustomInputManager.InputMode.Gameplay))
             { this.MoveSelectionLeft(); }
 
-        else if (CustomInputManager.GetButtonDown("Right"))
+        else if (CustomInputManager.GetButtonDown("Right", CustomInputManager.InputMode.Gameplay))
             { this.MoveSelectionRight(); }
 
-        else if (CustomInputManager.GetButtonDown("Submit"))
+        else if (CustomInputManager.GetButtonDown("Submit", CustomInputManager.InputMode.Gameplay))
             { this.AcceptMove(); }
     }
 }

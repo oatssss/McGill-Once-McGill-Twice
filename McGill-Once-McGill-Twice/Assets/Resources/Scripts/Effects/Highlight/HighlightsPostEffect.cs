@@ -50,7 +50,8 @@ public class HighlightsPostEffect : MonoBehaviour
 		CreateMaterials();
 		SetOccluderObjects();
 
-		m_blur = gameObject.AddComponent<BlurOptimized>();
+		// m_blur = gameObject.AddComponent<BlurOptimized>();
+        m_blur = GetComponent<BlurOptimized>();
 		m_blur.enabled = false;
 
 		GameObject[] occludees = GameObject.FindGameObjectsWithTag(HighlightManager.Instance.m_occludeesTag);

@@ -106,7 +106,7 @@ public class GameManager : UnitySingletonPersistent<GameManager> {
             else
                 { PlayerManager.Respawn(); }
 
-            GUIManager.MajorFadeToClear(null);
+            GUIManager.FadeToClear(null);
 
             if (PhotonNetwork.isMasterClient)
             {
@@ -297,7 +297,7 @@ public class GameManager : UnitySingletonPersistent<GameManager> {
         options.customRoomPropertiesForLobby = new string[] { GameConstants.KEY_ROOMNAME, GameConstants.KEY_SEED };
 
         // Fade to black and create a room as callback
-        GUIManager.MajorFadeToBlack( () => PhotonNetwork.CreateRoom(uniqueRoomName, options ,null) );
+        GUIManager.FadeToBlack( () => PhotonNetwork.CreateRoom(uniqueRoomName, options ,null) );
     }
 
     public void HostGame(SavedGameItem savedGameItem, Toggle customSeedToggle)
