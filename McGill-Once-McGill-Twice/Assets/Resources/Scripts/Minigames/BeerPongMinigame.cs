@@ -10,6 +10,8 @@ public class BeerPongMinigame : TurnBasedMinigame
     [SerializeField] private List<PongCup> CupsA;
     [SerializeField] private List<PongCup> CupsB;
     [SerializeField] private List<PongCup> ScoredCups;
+    public Overlay BPPlayingUI;
+    public override Overlay PlayingUI { get { return this.BPPlayingUI; } }
 
     /*
     /// <summary>
@@ -62,7 +64,7 @@ public class BeerPongMinigame : TurnBasedMinigame
         throw new NotImplementedException();
     }
 
-    protected override bool ValidToStart()
+    public override bool ValidToStart()
     {
         throw new NotImplementedException();
     }

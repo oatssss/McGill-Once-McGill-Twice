@@ -5,7 +5,7 @@ using ExtensionMethods;
 
 public class ConnectFourBoard : Photon.PunBehaviour {
 
-    [SerializeField] private Minigame ParentMinigame;
+    [SerializeField] private ConnectFourMinigame ParentMinigame;
     [SerializeField] private bool singleSided;
     public bool SingleSided { get { return this.singleSided; } private set { this.singleSided = value; } }
     private bool LocalSideB = false;
@@ -55,11 +55,18 @@ public class ConnectFourBoard : Photon.PunBehaviour {
         }
     }
 
+    private void SetLocalTurn(bool localTurn)
+    {
+        this.PlayerTurn = localTurn;
+        this.ParentMinigame.C4PlayingUI.SetTurn(localTurn);
+    }
+
     public void StartPlaying(PhotonPlayer A, PhotonPlayer B)
     {
         this.photonView.ClearRpcBufferAsMasterClient();    // We don't care about instructions in the buffer for previous games at this point
         this.photonView.RPC("ResetBoard", PhotonTargets.OthersBuffered);
-        this.PlayerTurn = false;
+        // this.PlayerTurn = false;
+        this.SetLocalTurn(false);
 
         if (A.Equals(PhotonNetwork.player))
         {
@@ -67,11 +74,12 @@ public class ConnectFourBoard : Photon.PunBehaviour {
             this.RemotePlayer = B;
             this.LocalColour = ConnectFourSlot.Colour.Black;
             this.RemoteColour = ConnectFourSlot.Colour.Red;
-            this.LocalSelectors = SelectorsA;
-            this.RemoteSelectors = SelectorsB;
+            this.LocalSelectors = (ConnectFourSlot[])SelectorsA.Clone();
+            this.RemoteSelectors = (ConnectFourSlot[])SelectorsB.Clone();
             if (this.SingleSided)
                 { Array.Reverse(this.RemoteSelectors); }
-            this.PlayerTurn = true;
+            // this.PlayerTurn = true;
+            this.SetLocalTurn(true);
         }
         else if (B.Equals(PhotonNetwork.player))
         {
@@ -79,8 +87,8 @@ public class ConnectFourBoard : Photon.PunBehaviour {
             this.RemotePlayer = A;
             this.LocalColour = ConnectFourSlot.Colour.Red;
             this.RemoteColour = ConnectFourSlot.Colour.Black;
-            this.LocalSelectors = SelectorsB;
-            this.RemoteSelectors = SelectorsA;
+            this.LocalSelectors = (ConnectFourSlot[])SelectorsB.Clone();
+            this.RemoteSelectors = (ConnectFourSlot[])SelectorsA.Clone();
             if (this.SingleSided)
                 { Array.Reverse(this.LocalSelectors); }
         }
@@ -96,6 +104,7 @@ public class ConnectFourBoard : Photon.PunBehaviour {
 
     public void StopPlaying()
     {
+        this.ParentMinigame.Started = false;
         this.Playing = false;
     }
 
@@ -136,7 +145,6 @@ public class ConnectFourBoard : Photon.PunBehaviour {
     [PunRPC]
     private void RemoteMoveSelectionLeft(int currentRemoteSelectorIndex, PhotonMessageInfo info)
     {
-        Debug.Log("REMOTE INDEX PRIOR TO MOVE LEFT: " + currentRemoteSelectorIndex);
         if (currentRemoteSelectorIndex <= 0)
         {
             Debug.LogErrorFormat("{0} attempted to move the connect four move selector left from index {1} which would be out of bounds.", info.sender, currentRemoteSelectorIndex);
@@ -150,7 +158,6 @@ public class ConnectFourBoard : Photon.PunBehaviour {
     [PunRPC]
     private void RemoteMoveSelectionRight(int currentRemoteSelectorIndex, PhotonMessageInfo info)
     {
-        Debug.Log("REMOTE INDEX PRIOR TO MOVE RIGHT: " + currentRemoteSelectorIndex);
         if (currentRemoteSelectorIndex >= this.RemoteSelectors.Length-1)
         {
             Debug.LogErrorFormat("{0} attempted to move the connect four move selector right from index {1} which would be out of bounds.", info.sender, currentRemoteSelectorIndex);
@@ -193,7 +200,8 @@ public class ConnectFourBoard : Photon.PunBehaviour {
             return;
         }
 
-        this.PlayerTurn = false;
+        // this.PlayerTurn = false;
+        this.SetLocalTurn(false);
         this.photonView.RPC("ModifySlot", PhotonTargets.AllBufferedViaServer, slotColumn, slotRow, (int)this.LocalColour);
     }
 
@@ -220,7 +228,8 @@ public class ConnectFourBoard : Photon.PunBehaviour {
         }
         else if (colourEnum != this.LocalColour)
         {
-            this.PlayerTurn = true;
+            // this.PlayerTurn = true;
+            this.SetLocalTurn(true);
         }
     }
 
@@ -369,25 +378,33 @@ public class ConnectFourBoard : Photon.PunBehaviour {
         }
     }
 
+    public void ResetHighlights()
+    {
+        foreach (ConnectFourSlot slot in this.Slots)
+            { slot.Highlight(false); }
+    }
+
     [PunRPC]
     private void ResetBoard(PhotonMessageInfo info)
     {
+        this.ResetHighlights();
+
         foreach (ConnectFourSlot slot in this.Slots)
         {
             slot.Status = ConnectFourSlot.Colour.Empty;
-            slot.Highlight(false);
+            // slot.Highlight(false);
         }
 
         foreach (ConnectFourSlot selector in this.LocalSelectors)
         {
             selector.Status = ConnectFourSlot.Colour.Empty;
-            selector.Highlight(false);
+            // selector.Highlight(false);
         }
 
         foreach (ConnectFourSlot selector in this.RemoteSelectors)
         {
             selector.Status = ConnectFourSlot.Colour.Empty;
-            selector.Highlight(false);
+            // selector.Highlight(false);
         }
 
         this.LocalSelectorIndex = 0;

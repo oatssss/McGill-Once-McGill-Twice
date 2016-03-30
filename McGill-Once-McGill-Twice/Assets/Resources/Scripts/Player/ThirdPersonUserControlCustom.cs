@@ -43,8 +43,10 @@ public class ThirdPersonUserControlCustom : MonoBehaviour
     private void FixedUpdate()
     {
         // read inputs
-        float h = CrossPlatformInputManager.GetAxis("Horizontal");
-        float v = CrossPlatformInputManager.GetAxis("Vertical");
+        // float h = CrossPlatformInputManager.GetAxis("Horizontal");
+        float h = CustomInputManager.GetAxis("Horizontal", CustomInputManager.InputMode.Gameplay);
+        // float v = CrossPlatformInputManager.GetAxis("Vertical");
+        float v = CustomInputManager.GetAxis("Vertical", CustomInputManager.InputMode.Gameplay);
         bool crouch = Input.GetKey(KeyCode.C);
 
         // calculate move direction to pass to character

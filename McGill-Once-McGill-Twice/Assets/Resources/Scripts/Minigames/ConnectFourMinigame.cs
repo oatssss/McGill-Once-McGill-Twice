@@ -12,7 +12,10 @@ public class ConnectFourMinigame : Minigame
     [SerializeField] private GameObject CameraPivot;
     [SerializeField] private GameObject CameraPivotLength;
     [SerializeField] private ConnectFourBoard Board;
-    [SerializeField] private Button StartButton;
+    public ConnectFourUI C4PlayingUI;
+    public override Overlay PlayingUI {
+        get { return (Overlay)this.C4PlayingUI; }
+    }
 
     protected override void LocalPlayerJoin(MinigameTeam team)
     {
@@ -45,24 +48,6 @@ public class ConnectFourMinigame : Minigame
         }
     }
 
-    [PunRPC]
-    protected override void AddPlayerToTeam(PhotonPlayer player, MinigameTeam team, PhotonMessageInfo info)
-    {
-        base.AddPlayerToTeam(player, team, info);
-
-        if (this.LocalPlayerJoined && this.ValidToStart())
-            { this.StartButton.interactable = true; }
-    }
-
-    [PunRPC]
-    protected override void RemovePlayer(PhotonPlayer player, PhotonMessageInfo info)
-    {
-        base.RemovePlayer(player, info);
-
-        if (!this.ValidToStart())
-            { this.StartButton.interactable = false; }
-    }
-
     protected override void HandleRemotePlayerLeaveDetails(MinigameTeam team, PhotonPlayer player)
     {
         this.DisplayEarlyGameTermination(team, player);
@@ -72,6 +57,7 @@ public class ConnectFourMinigame : Minigame
     protected override void ReturnToMinigameLobby()
     {
         this.Board.StopPlaying();
+        this.Board.ResetHighlights();
         base.ReturnToMinigameLobby();
     }
 
@@ -96,7 +82,7 @@ public class ConnectFourMinigame : Minigame
         return true;
     }
 
-    protected override bool ValidToStart()
+    public override bool ValidToStart()
     {
         return this.TeamContainerA.Team.Size + this.TeamContainerB.Team.Size == 2;
     }

@@ -49,4 +49,7 @@ public class CustomInputManager
 
     public static bool GetButton(string buttonName, InputMode inputMode)
         { return Mode == inputMode && Input.GetButton(buttonName); }
+
+    public static float GetAxis(string axis, InputMode inputMode)
+        { return Mode == inputMode ? Input.GetAxis(axis) : 0f; }
 }

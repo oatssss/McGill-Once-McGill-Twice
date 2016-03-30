@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,8 +8,9 @@ using ExtensionMethods;
 public abstract class Minigame : Photon.PunBehaviour
 {
     [SerializeField] private List<MinigameTeamContainer> TeamContainers = new List<MinigameTeamContainer>();
+    public abstract Overlay PlayingUI { get; }
     [SerializeField] private Menu InstructionMenu;
-    [SerializeField] private Menu InfoMenu;
+    [SerializeField] private MinigameInfoMenu InfoMenu;
     [SerializeField] private MinigameZone Zone;
     [ReadOnly] public bool LocalPlayerJoined;
     [ReadOnly] public bool Started;
@@ -44,7 +46,7 @@ public abstract class Minigame : Photon.PunBehaviour
         this.photonView.RPC("StartGame", PhotonTargets.AllBufferedViaServer);
     }
 
-    protected abstract bool ValidToStart();
+    public abstract bool ValidToStart();
 
     protected virtual void DisplayStartingError()
     {
@@ -126,6 +128,7 @@ public abstract class Minigame : Photon.PunBehaviour
             this.InteractForLobbyReturn = null;
         }
         GUIManager.ShowMinigameJoinedUI(this);
+        this.DisplayGameInfo();
         // TODO : Enable tab menu
     }
 
@@ -168,6 +171,9 @@ public abstract class Minigame : Photon.PunBehaviour
             else
                 { this.DisplayJoiningError(); }
         }
+
+        // if (this.LocalPlayerJoined && this.ValidToStart())
+        //     { this.InfoMenu.StartButton.interactable = true; }
     }
 
     /// <summary>
@@ -238,7 +244,9 @@ public abstract class Minigame : Photon.PunBehaviour
 
         // Remove the player from the team, if the player is the client, trigger the events associated with leaving the game
         bool successfullyRemoved = correspondingTeam.RemovePlayer(player);
-        if (!player.Equals(PhotonNetwork.player) && successfullyRemoved)
+
+        // Special handling if the player leaving is part of a game the local player is in
+        if (this.LocalPlayerJoined && !player.Equals(PhotonNetwork.player) && successfullyRemoved)
             { this.HandleRemotePlayerLeaveDetails(correspondingTeam, player); }
 
         if (player.Equals(PhotonNetwork.player))
@@ -259,6 +267,9 @@ public abstract class Minigame : Photon.PunBehaviour
             if (players == 0)
                 { this.photonView.RPC("ResetGame", PhotonTargets.AllViaServer); }
         }
+
+        // if (!this.ValidToStart())
+        //     { this.InfoMenu.StartButton.interactable = false; }
     }
 
     protected abstract void HandleRemotePlayerLeaveDetails(MinigameTeam team, PhotonPlayer player);
@@ -284,7 +295,7 @@ public abstract class Minigame : Photon.PunBehaviour
         CameraManager.SetViewToPlayer();
         PlayerManager.EnableUserMovement();
         GUIManager.ShowFreeRoamUI();
-        this.EnableZone();
+        // this.EnableZone();
     }
 
     public void EnableZone()

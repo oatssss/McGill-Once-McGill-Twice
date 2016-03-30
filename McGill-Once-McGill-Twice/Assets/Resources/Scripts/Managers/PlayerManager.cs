@@ -58,6 +58,7 @@ public class PlayerManager : UnitySingletonPersistent<PlayerManager> {
         PhotonNetwork.player.TagObject = MainPlayer;
 
         CameraManager.SetViewToPlayer();
+        GUIManager.ShowFreeRoamUI();
     }
 
     public static void Respawn(float sleepStatus, float academicStatus, float socialStatus, Vector3 location)

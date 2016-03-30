@@ -25,7 +25,7 @@ public class HighlightManager : UnitySingletonPersistent<HighlightManager> {
         {
             highlightObjects.Add(renderer);
         }
-        else
+        else if (!highlight)
         {
             highlightObjects.Remove(renderer);
         }

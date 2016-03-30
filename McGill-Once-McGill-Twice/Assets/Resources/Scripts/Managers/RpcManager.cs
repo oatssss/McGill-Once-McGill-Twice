@@ -75,14 +75,12 @@ public class RpcManager : PhotonSingletonPersistent<RpcManager> {
     [PunRPC]
     public void ClearRpcBufferAsMasterClient(PhotonView photonView)
     {
-        Debug.Log("CLEARING " + photonView.viewID);
         PhotonNetwork.RemoveRPCs(photonView);
     }
 
     [PunRPC]
     public void ClearRpcBufferAsMasterClient(PhotonPlayer photonPlayer)
     {
-        Debug.Log("CLEARING " + photonView.viewID);
         PhotonNetwork.RemoveRPCs(photonPlayer);
     }
 }
