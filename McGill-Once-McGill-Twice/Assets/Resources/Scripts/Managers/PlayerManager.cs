@@ -45,7 +45,16 @@ public class PlayerManager : UnitySingletonPersistent<PlayerManager> {
         if (MainPlayer != null)
             { return; }
 
-        GameObject playerObject = PhotonNetwork.Instantiate(GameConstants.ASSET_MALCOLM, Instance.Malcolm.transform.position, Instance.Malcolm.transform.rotation, 0);
+        GameObject playerObject;
+
+        if (GameManager.Instance.Settings.Sex == GameManager.UserSettings.SEX.M)
+        {
+            playerObject = PhotonNetwork.Instantiate(GameConstants.ASSET_MALCOLM, Instance.Malcolm.transform.position, Instance.Malcolm.transform.rotation, 0);
+        }
+        else
+        {
+            playerObject = PhotonNetwork.Instantiate(GameConstants.ASSET_ANDROMEDA, Instance.Andromeda.transform.position, Instance.Andromeda.transform.rotation, 0);
+        }
 
         playerObject.tag = GameConstants.TAG_MAINPLAYER;
         playerObject.SetLayerRecursively(LayerMask.NameToLayer(GameConstants.LAYER_PLAYER));
@@ -55,7 +64,7 @@ public class PlayerManager : UnitySingletonPersistent<PlayerManager> {
         MainPlayer = playerObject.GetComponent<Player>();
         MainPlayer.ThirdPersonCharacter.EnableUserMovement();
 
-        PhotonNetwork.player.TagObject = MainPlayer;
+        // PhotonNetwork.player.TagObject = MainPlayer.photonView;
 
         CameraManager.SetViewToPlayer();
         GUIManager.ShowFreeRoamUI();

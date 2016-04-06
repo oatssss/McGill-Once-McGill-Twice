@@ -25,6 +25,7 @@ public class GameConstants {
 
     // Static list of assets
     public static readonly string ASSET_MALCOLM = "Prefabs/Characters/Malcolm/Malcolm";
+    public static readonly string ASSET_ANDROMEDA = "Prefabs/Characters/Andromeda/Andromeda";
 
     // Misc
 

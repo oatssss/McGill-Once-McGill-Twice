@@ -10,10 +10,10 @@ public class PhotonManager : PUNSingletonPersistent<PhotonManager> {
         this.ConnectToPhoton();
     }
 
-    void OnGUI()
-    {
-        GUI.Label(new Rect(10, 10, 100, 20), PhotonNetwork.connectionStateDetailed.ToString());
-    }
+    // void OnGUI()
+    // {
+    //     GUI.Label(new Rect(10, 10, 100, 20), PhotonNetwork.connectionStateDetailed.ToString());
+    // }
 
     public void ConnectToPhoton()
     {
@@ -50,7 +50,17 @@ public class PhotonManager : PUNSingletonPersistent<PhotonManager> {
         {
             PhotonNetwork.isMessageQueueRunning = false;
         }
-        PhotonNetwork.playerName = "Oats";
+
+        GUIManager.Instance.ChatUI.CanvasGroup.alpha = 1f;
+        GUIManager.Instance.ChatUI.CanvasGroup.interactable = true;
+        GUIManager.Instance.ChatUI.CanvasGroup.blocksRaycasts = true;
+    }
+
+    public override void OnLeftRoom()
+    {
+        GUIManager.Instance.ChatUI.CanvasGroup.alpha = 0f;
+        GUIManager.Instance.ChatUI.CanvasGroup.interactable = false;
+        GUIManager.Instance.ChatUI.CanvasGroup.blocksRaycasts = false;
     }
 
     public override void OnCreatedRoom()
@@ -59,5 +69,33 @@ public class PhotonManager : PUNSingletonPersistent<PhotonManager> {
         {
             GameManager.Instance.InitializeHostGame();
         }
+    }
+
+    public static void SendChatMessage(string message)
+    {
+        Instance.photonView.RPC("ReceiveChatMessage", PhotonTargets.AllViaServer, message);
+    }
+
+    public override void OnPhotonPlayerDisconnected(PhotonPlayer otherPlayer)
+    {
+        if (PhotonNetwork.isMasterClient)
+        {
+            PhotonView playerView = (PhotonView)otherPlayer.TagObject;
+            int viewID = playerView.viewID;
+            this.photonView.RPC("CleanupPlayerAvatar", PhotonTargets.AllBufferedViaServer, viewID);
+        }
+    }
+
+    [PunRPC]
+    private void CleanupPlayerAvatar(int avatarViewID)
+    {
+        PhotonView photonView = PhotonView.Find(avatarViewID);
+        Destroy(photonView.gameObject);
+    }
+
+    [PunRPC]
+    private void ReceiveChatMessage(string message, PhotonMessageInfo info)
+    {
+        GUIManager.Instance.ChatUI.AddChatMessageText(info.sender.name, message);
     }
 }

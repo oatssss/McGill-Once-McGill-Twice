@@ -2,7 +2,7 @@
 using System;
 using System.Collections;
 
-public class Player : MonoBehaviour {
+public class Player : Photon.PunBehaviour {
 
     [SerializeField] private ThirdPersonCharacterCustom _ThirdPersonCharacter;
     public ThirdPersonCharacterCustom ThirdPersonCharacter
@@ -70,5 +70,11 @@ public class Player : MonoBehaviour {
             this.AcademicStatus = (float) stream.ReceiveNext();
             this.SocialStatus = (float) stream.ReceiveNext();
         }
+    }
+
+    public override void OnPhotonInstantiate(PhotonMessageInfo info)
+    {
+        if (info.sender != null)
+            { info.sender.TagObject = this.photonView; }
     }
 }

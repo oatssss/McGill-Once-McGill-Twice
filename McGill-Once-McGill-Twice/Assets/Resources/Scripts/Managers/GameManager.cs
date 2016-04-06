@@ -58,20 +58,32 @@ public class GameManager : UnitySingletonPersistent<GameManager> {
     }
 
     public class UserSettings {
-        public string Name;
+        public enum SEX { M=0, F }
+        [SerializeField] private string name;
+        public string Name {
+            get { return this.name; }
+            set {
+                PhotonNetwork.playerName = value;
+                this.name = value;
+            }
+        }
+        public SEX Sex;
 
         public UserSettings()
         {
             this.Name = "skidrow";
+            this.Sex = SEX.M;
         }
-        public UserSettings(string name)
+        public UserSettings(string name, SEX sex)
         {
             this.Name = name;
+            this.Sex = sex;
         }
     }
 
     public GameState SessionState = new GameState();
-    private UserSettings Settings;
+    private UserSettings settings;
+    public UserSettings Settings { get { return this.settings; } private set { this.settings = value; } }
     public bool DebugMode;
 
     void Start()
@@ -164,6 +176,12 @@ public class GameManager : UnitySingletonPersistent<GameManager> {
         this.SetName(nameInput.text);
     }
 
+    public void SetSex(Dropdown option)
+    {
+        this.Settings.Sex = (UserSettings.SEX)option.value;
+        this.SaveUserSettings();
+    }
+
     public static int NextAvailableSaveGameIdentifier()
     {
         SortedList<DateTime,FileInfo> saveFiles = IOManager.GetSavedSessionFiles();
@@ -189,13 +207,16 @@ public class GameManager : UnitySingletonPersistent<GameManager> {
     {
         foreach (PhotonPlayer photonPlayer in PhotonNetwork.playerList)
         {
-            Player player = (Player) photonPlayer.TagObject;
+            PhotonView playerView = (PhotonView) photonPlayer.TagObject;
             PlayerState playerState;
 
-            if (player == null)
+            if (playerView == null)
                 { playerState = new PlayerState(0, 0, 0, Vector3.zero); }
             else
-                { playerState = new PlayerState(player.SleepStatus, player.AcademicStatus, player.SocialStatus, player.transform.position); }
+            {
+                Player player = playerView.GetComponent<Player>();
+                playerState = new PlayerState(player.SleepStatus, player.AcademicStatus, player.SocialStatus, player.transform.position);
+            }
 
             this.SessionState.SetPlayerData(photonPlayer, playerState);
         }
@@ -266,6 +287,8 @@ public class GameManager : UnitySingletonPersistent<GameManager> {
 
     public void HostGame(SavedGameItem savedGameItem, bool useCustomSeed)
     {
+        PhotonNetwork.playerName = this.Settings.Name;
+
         System.Guid guid = System.Guid.NewGuid();
         string uniqueRoomName = guid.ToString();
 
@@ -308,6 +331,19 @@ public class GameManager : UnitySingletonPersistent<GameManager> {
     public void HostGame(SavedGameItem savedGameItem)
     {
         this.HostGame(savedGameItem, false);
+    }
+
+    public void JoinGame(RoomInfo roomInfo)
+    {
+        PhotonNetwork.playerName = this.Settings.Name;
+
+        PhotonNetwork.JoinRoom(roomInfo.name);
+
+        long levelSeed;
+        long.TryParse(roomInfo.customProperties[GameConstants.KEY_SEED].ToString(), out levelSeed);
+        GUIManager.FadeToBlack( () => GameManager.Instance.GenerateLevel(levelSeed) );
+
+        GUIManager.Instance.ResumeGame();
     }
 
     public void PauseTime()

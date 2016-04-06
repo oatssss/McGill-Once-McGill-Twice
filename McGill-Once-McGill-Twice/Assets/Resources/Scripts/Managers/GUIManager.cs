@@ -19,6 +19,8 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
     [SerializeField] private List<Overlay> CurrentUIs;
     [SerializeField] private Overlay MinigameJoinedUI;
     [SerializeField] private Overlay FreeRoamUI;
+    public ChatOverlay ChatUI;
+    public int MaxChatMessages = 10;
     [Space(10)]
 
     [Header("Fading")]
@@ -436,13 +438,13 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
         return Instance.History.Peek();
     }
 
-    private void SetMenuFocus()
+    public void SetMenuFocus()
     {
         PlayerManager.DisableUserMovement();
         CustomInputManager.Mode = CustomInputManager.InputMode.Menu;
     }
 
-    private void SetGameFocus()
+    public void SetGameFocus()
     {
         CustomInputManager.Mode = CustomInputManager.InputMode.Gameplay;
         // Only enable user movement if the AI isn't in control
@@ -462,6 +464,11 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
         {
             if (Instance.CurrentMenu != null)
                 { Instance.BackFromCurrentMenu(); }
+        }
+
+        if (CustomInputManager.GetButtonDown("Chat", CustomInputManager.InputMode.Gameplay))
+        {
+            this.ChatUI.OpenChatInput();
         }
     }
 

@@ -113,12 +113,14 @@ public class RunningGamesView : LiveMenuView {
 
     public void JoinGame()
     {
-        PhotonNetwork.JoinRoom(this.SelectedRoom.Room.name);
+        GameManager.Instance.JoinGame(this.SelectedRoom.Room);
 
-        long levelSeed;
-        long.TryParse(this.SelectedRoom.Room.customProperties[GameConstants.KEY_SEED].ToString(), out levelSeed);
-        GUIManager.FadeToBlack( () => GameManager.Instance.GenerateLevel(levelSeed) );
+        // PhotonNetwork.JoinRoom(this.SelectedRoom.Room.name);
 
-        GUIManager.Instance.ResumeGame();
+        // long levelSeed;
+        // long.TryParse(this.SelectedRoom.Room.customProperties[GameConstants.KEY_SEED].ToString(), out levelSeed);
+        // GUIManager.FadeToBlack( () => GameManager.Instance.GenerateLevel(levelSeed) );
+
+        // GUIManager.Instance.ResumeGame();
     }
 }
