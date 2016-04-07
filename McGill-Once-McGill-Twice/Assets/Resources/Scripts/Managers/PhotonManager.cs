@@ -6,7 +6,7 @@ public class PhotonManager : PUNSingletonPersistent<PhotonManager> {
 
     void Start()
     {
-        PhotonNetwork.autoCleanUpPlayerObjects = false;
+        // PhotonNetwork.autoCleanUpPlayerObjects = false;
         this.ConnectToPhoton();
     }
 
