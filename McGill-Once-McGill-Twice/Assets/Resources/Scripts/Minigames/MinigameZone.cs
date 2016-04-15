@@ -19,7 +19,7 @@ public class MinigameZone : MonoBehaviour {
     {
         GUIManager.Instance.ShowTooltip("Press E for game details.", GUIManager.TOOL_TIP_DURATION.INSTANTANEOUS);
 
-        if (CustomInputManager.GetButtonDown("Interact Main", CustomInputManager.InputMode.Gameplay))
+        if (CustomInputManager.GetButtonDown("Interact Main", CustomInputManager.InputMode.Gameplay) && other.tag == GameConstants.TAG_MAINPLAYER)
         {
             // Show game info menu
             this.ParentMinigame.DisplayGameInfo();

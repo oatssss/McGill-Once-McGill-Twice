@@ -53,6 +53,11 @@ public class ConnectFourBoard : Photon.PunBehaviour {
                 this.Slots[x,y] = column[y];
             }
         }
+
+        this.LocalSelectors = this.SelectorsA;
+        this.RemoteSelectors = this.SelectorsB;
+
+        this.ResetBoard(null);
     }
 
     private void SetLocalTurn(bool localTurn)

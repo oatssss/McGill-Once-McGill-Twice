@@ -72,6 +72,9 @@ public class ConnectFourMinigame : Minigame
         if (!base.StartGame(info))
             { return false; }
 
+        if (!this.LocalPlayerJoined)
+            { return true; }
+
         // Pure start after this point, checks and UI have already been handled
         // CameraManager.SetViewLookAngleMax(90f);
         IEnumerator<PhotonPlayer> iterateA = this.TeamContainerA.Team.GetEnumerator();

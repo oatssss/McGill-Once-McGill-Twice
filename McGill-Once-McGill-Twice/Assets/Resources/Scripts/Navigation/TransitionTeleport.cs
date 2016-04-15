@@ -25,7 +25,7 @@ public abstract class TransitionTeleport : MonoBehaviour {
     {
         GUIManager.Instance.ShowTooltip(this.TooltipText, GUIManager.TOOL_TIP_DURATION.INSTANTANEOUS);
 
-        if (CustomInputManager.GetButtonDown("Interact Main", CustomInputManager.InputMode.Gameplay))
+        if (CustomInputManager.GetButtonDown("Interact Main", CustomInputManager.InputMode.Gameplay) && other.tag == GameConstants.TAG_MAINPLAYER)
         {
             Transition(other.GetComponent<ThirdPersonCharacterCustom>());
         }

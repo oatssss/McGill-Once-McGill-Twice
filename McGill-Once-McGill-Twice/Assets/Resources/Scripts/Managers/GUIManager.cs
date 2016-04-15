@@ -35,7 +35,7 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
     [Header("Menus")]
     [ReadOnly] [SerializeField] private bool InGame;
     [SerializeField] private Menu PauseMenu;
-    [SerializeField] private Menu StartupMenu;
+    public Menu StartupMenu;
     [Space(10)]
 
     [Header("Stats")]
@@ -50,13 +50,13 @@ public class GUIManager : UnitySingletonPersistent<GUIManager> {
     public enum TOOL_TIP_DURATION { DEFAULT, INSTANTANEOUS }
     [ReadOnly] public List<Tooltip> Tooltips = new List<Tooltip>();
 
-    void Start()
-    {
-        if (!GameManager.Instance.DebugMode)
-            { FadeToClear(() => this.OpenMenu(this.StartupMenu)); }
-        else
-            { FadeToClear(null); }
-    }
+    // void Start()
+    // {
+    //     if (!GameManager.Instance.DebugMode)
+    //         { FadeToClear(() => this.OpenMenu(this.StartupMenu)); }
+    //     else
+    //         { FadeToClear(null); }
+    // }
 
     void OnGUI()
     {

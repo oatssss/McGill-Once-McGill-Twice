@@ -54,6 +54,8 @@ public class PhotonManager : PUNSingletonPersistent<PhotonManager> {
         GUIManager.Instance.ChatUI.CanvasGroup.alpha = 1f;
         GUIManager.Instance.ChatUI.CanvasGroup.interactable = true;
         GUIManager.Instance.ChatUI.CanvasGroup.blocksRaycasts = true;
+
+        GameObject.FindWithTag("MainCamera").AddComponent<HighlightsPostEffect>();
     }
 
     public override void OnLeftRoom()

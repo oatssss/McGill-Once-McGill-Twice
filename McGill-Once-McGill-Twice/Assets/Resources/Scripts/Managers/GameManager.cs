@@ -341,7 +341,9 @@ public class GameManager : UnitySingletonPersistent<GameManager> {
 
         long levelSeed;
         long.TryParse(roomInfo.customProperties[GameConstants.KEY_SEED].ToString(), out levelSeed);
+        GameManager.Instance.SessionState.LevelSeed = levelSeed;
         GUIManager.FadeToBlack( () => GameManager.Instance.GenerateLevel(levelSeed) );
+        Debug.LogWarningFormat("SEED: {0}", (int)levelSeed);
 
         GUIManager.Instance.ResumeGame();
     }
@@ -354,5 +356,19 @@ public class GameManager : UnitySingletonPersistent<GameManager> {
     public void ResumeTime()
     {
         Time.timeScale = 1;
+    }
+
+    public void Disconnect()
+    {
+        Destroy(GameObject.FindWithTag("MainCamera").GetComponent<HighlightsPostEffect>());
+        CustomInputManager.Mode = CustomInputManager.InputMode.Menu;
+        GUIManager.FadeToBlack( () => this.ReloadStartup() );
+    }
+
+    private void ReloadStartup()
+    {
+        PhotonNetwork.Disconnect();
+        SceneManager.LoadScene("Launch");
+        Destroy(this.gameObject);
     }
 }
